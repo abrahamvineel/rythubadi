@@ -1,15 +1,27 @@
-import logo from './logo.svg';
+import logo from './rythubadi.png';
 import './App.css';
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
-        Rythubadi
-        </p>
-      </header>
+
+      {/* <header className="App-header">
+      </header> */}
+        <div class="login-container">
+          <h2>Login</h2>
+          <form>
+            <label>Email</label>
+            <input type="text" placeholder="Enter your email" />
+
+            <label>Password</label>
+            <input type="password" placeholder="Enter your password" />
+
+            <button type="submit">Login</button>
+
+            <p class="signup-text">Not registered? <a href="/">Signup</a></p>
+          </form>
+        </div>
     </div>
   );
 }
