@@ -19,11 +19,6 @@ function Signup() {
   }
 
   const handleSubmit = async (event) => {
-    console.log('event', event);
-
-    console.log('email', formData.email);
-
-    console.log('password', formData.password);
     event.preventDefault();
 
     if(formData.password !== formData.confirmPassword) {
@@ -37,14 +32,11 @@ function Signup() {
         password: formData.password
       });
 
-      if (response.ok) {
+      if (response.status === 201) {
         navigate("/")
-      } else {
-        console.error('Signup error');
       }
-
     } catch(error) {
-      console.error('Signup error', error);
+      alert('Signup error ' + JSON.stringify(error.response.data));    
     }
   }
 
