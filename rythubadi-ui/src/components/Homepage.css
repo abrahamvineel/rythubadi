@@ -9,25 +9,3 @@
     height: 100vh;
     background-color: #282c34;
 }
-
-.top-right-section {
-    display: flex;
-    justify-content: flex-end; /* Align items to the right */
-    align-items: center; /* Vertically align items in the center (optional) */
-    padding: 1rem; /* Add some padding for spacing (optional) */
-  }
-  
-  .top-right-section h3 {
-    margin-right: 1rem; /* Add some space between the text and the button (optional) */
-    color: white; /* Adjust text color as needed */
-  }
-  
-  .top-right-section button {
-    /* Style your button as needed */
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 5px;
-    background-color: #61dafb;
-    color: #282c34;
-    cursor: pointer;
-  }
