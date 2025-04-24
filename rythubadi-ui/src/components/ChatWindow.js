@@ -12,7 +12,7 @@ function ChatWindow({email}) {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
+        localStorage.removeItem('authToken');
         localStorage.removeItem('email');
         navigate("/")
     }
