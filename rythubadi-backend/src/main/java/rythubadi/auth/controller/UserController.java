@@ -13,6 +13,7 @@ import rythubadi.auth.dto.UserLoginDetailsRequest;
 import rythubadi.auth.exceptions.EmailAlreadyExistsException;
 import rythubadi.auth.model.User;
 import rythubadi.auth.service.UserService;
+import rythubadi.auth.util.AuthResponse;
 import rythubadi.auth.util.JwtUtil;
 
 @RestController
@@ -48,8 +49,9 @@ public class UserController {
         User user = userService.findByEmail(request.getEmail());
 
         if (user != null && passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            String token = jwtUtil.generateToken(user.getEmail());
-            return ResponseEntity.ok(token);
+            String email = user.getEmail();
+            String token = jwtUtil.generateToken(email);
+            return ResponseEntity.ok(new AuthResponse(token, email));
         }
         return ResponseEntity.status(401).body("Invalid Credentials");
     }
