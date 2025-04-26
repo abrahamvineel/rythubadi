@@ -2,6 +2,7 @@ package rythubadi.auth.model;
 
 import jakarta.persistence.*;
 import jakarta.persistence.ManyToOne;
+import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDate;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Data
 public class ChatSession extends Auditable {
 
     @Id

@@ -11,11 +11,11 @@ public class ChatMessage {
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "chat_session_id")
+    @JoinColumn(name = "chat_session_id")
     private ChatSession chatSession;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "sender_id")
+    @JoinColumn(name = "sender_id")
     private User user;
 
     private String content;
