@@ -9,7 +9,7 @@ function Homepage() {
     const email = location.state?.email;
     return (
         <div class="homepage-container">
-            <SideBar />
+            <SideBar email={email}/>
             <ChatWindow email={email}/>
         </div>
     );

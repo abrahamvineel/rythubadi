@@ -5,8 +5,6 @@ import './ChatWindow.css'
 function ChatWindow({email}) {
 
     const messages = [
-        {id: 1, sender: "user", text: "Hello"},
-        {id: 2, sender: "bot", text: "Hello, how can i help you?"},
     ]
 
     const navigate = useNavigate();

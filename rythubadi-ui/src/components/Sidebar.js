@@ -1,15 +1,25 @@
+import axios from 'axios'
 import './Sidebar.css'
 
-function SideBar() {
+function SideBar({email}) {
+
     const oldChats = [
-        {id: 1, title: "Chat1"},
-        {id: 2, title: "Chat2"},
-        {id: 3, title: "Chat3"},
     ]
+
+    const createChatSession = async () => {
+
+        try {
+            console.log(email)
+
+            await axios.post(`http://localhost:8080/api/chat/create/${email}`)
+        } catch(error) {
+           console.error("Unable to create a chat session ", error) 
+        }
+    }
 
     return (
         <div className="chats-container">
-            <button className="new-chat">New chat</button>
+            <button className="new-chat" onClick={createChatSession}>New Chat</button>
             <div className="old=chats-container">
                 <h3>Old Chats</h3>
                 <ul>
