@@ -2,10 +2,8 @@ package rythubadi.auth.controller;
 
 import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import rythubadi.auth.model.ChatSession;
 import rythubadi.auth.service.ChatService;
 
 @RestController
@@ -22,5 +20,10 @@ public class ChatController {
     @PostMapping("/create/{email}")
     public void createChatSession(@PathVariable String email) {
         chatService.createChatSession(email);
+    }
+
+    @GetMapping("/user/{email")
+    public void getChats(@PathVariable String email) {
+        chatService.getChats(email);
     }
 }

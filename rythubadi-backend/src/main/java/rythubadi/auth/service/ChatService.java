@@ -29,4 +29,9 @@ public class ChatService {
         session.setTitle("Chat_" + UUID.randomUUID());
         chatSessionRepository.save(session);
     }
+
+    public void getChats(String email) {
+        //need to get all uuids based on email also need to verify if this is efficient
+        chatSessionRepository.getReferenceById();
+    }
 }
