@@ -9,8 +9,6 @@ function SideBar({email}) {
     const createChatSession = async () => {
 
         try {
-            console.log(email)
-
             await axios.post(`http://localhost:8080/api/chat/create/${email}`)
         } catch(error) {
            console.error("Unable to create a chat session ", error) 
