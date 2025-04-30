@@ -2,11 +2,13 @@ package rythubadi.auth.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import rythubadi.auth.dto.ChatSessionDTO;
 import rythubadi.auth.model.ChatSession;
 import rythubadi.auth.model.User;
 import rythubadi.auth.repository.ChatSessionRepository;
 import rythubadi.auth.repository.UserRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,8 +32,9 @@ public class ChatService {
         chatSessionRepository.save(session);
     }
 
-    public void getChats(String email) {
-        //need to get all uuids based on email also need to verify if this is efficient
-        chatSessionRepository.getReferenceById();
+    public List<ChatSessionDTO> getChatSessions(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        long userId = user.get().getId();
+        return chatSessionRepository.findAllActiveSessionsByUserId(userId);
     }
 }
