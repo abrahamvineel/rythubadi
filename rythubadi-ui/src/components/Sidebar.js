@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useState, useEffect } from 'react';
 import './Sidebar.css'
 
-function SideBar({email}) {
+function SideBar({email, onChatSelect}) {
     const [oldChats, setOldChats] = useState([]);
 
     useEffect(() => {
@@ -39,11 +39,11 @@ function SideBar({email}) {
     return (
         <div className="chats-container">
             <button className="new-chat" onClick={createChatSession}>New Chat</button>
-            <div className="old=chats-container">
+            <div className="old-chats-container">
                 <h3>Old Chats</h3>
                 <ul>
                     {oldChats.map((chat) => {
-                        return <li key={chat.id}>{chat.title}</li>
+                        return <li key={chat.id} onClick={() => onChatSelect(chat.id)}>{chat.title}</li>
                     })}
                 </ul>
             </div>

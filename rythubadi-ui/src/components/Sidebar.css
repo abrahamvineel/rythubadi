@@ -31,16 +31,16 @@
   }
   
   .old-chats-container ul {
-    list-style: none;
+    list-style:disc;
   }
   
   .old-chats-container li {
     padding: 8px 0;
     cursor: pointer;
-    color: #333;
+    color: #e0e0e0;
   }
   
   .old-chats-container li:hover {
-    background-color: #e0e0e0;
+    background-color: #333;
     border-radius: 3px;
   }

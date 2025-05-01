@@ -2,7 +2,7 @@ import ChatInput from "./ChatInput"
 import { useNavigate } from "react-router-dom";
 import './ChatWindow.css'
 
-function ChatWindow({email}) {
+function ChatWindow({email, chatId}) {
 
     const messages = [
     ]
