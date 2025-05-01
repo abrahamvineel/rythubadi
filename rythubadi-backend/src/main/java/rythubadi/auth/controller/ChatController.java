@@ -30,4 +30,9 @@ public class ChatController {
     public List<ChatSessionDTO> getChatSessions(@PathVariable String email) {
         return chatService.getChatSessions(email);
     }
+
+    @GetMapping("/user/{chatId}/messages")
+    public void getMessagesForChatSession(@PathVariable String chatId) {
+        chatService.getMessagesForChatSession(chatId);
+    }
 }

@@ -3,8 +3,10 @@ package rythubadi.auth.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rythubadi.auth.dto.ChatSessionDTO;
+import rythubadi.auth.model.ChatMessage;
 import rythubadi.auth.model.ChatSession;
 import rythubadi.auth.model.User;
+import rythubadi.auth.repository.ChatMessageRepository;
 import rythubadi.auth.repository.ChatSessionRepository;
 import rythubadi.auth.repository.UserRepository;
 
@@ -17,11 +19,15 @@ public class ChatService {
 
     private final ChatSessionRepository chatSessionRepository;
     private final UserRepository userRepository;
+    private final ChatMessageRepository chatMessageRepository;
 
     @Autowired
-    public ChatService(ChatSessionRepository chatSessionRepository, UserRepository userRepository) {
+    public ChatService(ChatSessionRepository chatSessionRepository,
+                       UserRepository userRepository,
+                       ChatMessageRepository chatMessageRepository) {
         this.chatSessionRepository = chatSessionRepository;
         this.userRepository = userRepository;
+        this.chatMessageRepository = chatMessageRepository;
     }
 
     public void createChatSession(String email) {
@@ -36,5 +42,10 @@ public class ChatService {
         Optional<User> user = userRepository.findByEmail(email);
         long userId = user.get().getId();
         return chatSessionRepository.findAllActiveSessionsByUserId(userId);
+    }
+
+    public void getMessagesForChatSession(String chatId) {
+        //TODO: need to create a bot user and hard code bot id and also i think i might need email to fetch userId
+        List<ChatMessage> messages = chatMessageRepository.findMessagesByChatSessionId(chatId);
     }
 }
