@@ -47,6 +47,7 @@ public class ChatService {
     public List<ChatMessageDTO> getMessagesForChatSession(String chatId, String email) {
         Optional<User> user = userRepository.findByEmail(email);
         long userId = user.get().getId();
-        return chatMessageRepository.findMessagesByChatSessionId(chatId, userId);
+        UUID chatUUID = UUID.fromString(chatId);
+        return chatMessageRepository.findMessagesByChatSessionId(chatUUID, userId);
     }
 }
