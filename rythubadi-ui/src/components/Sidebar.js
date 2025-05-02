@@ -7,25 +7,15 @@ function SideBar({email, onChatSelect}) {
 
     useEffect(() => {
         const fetchOldChats = async () => {
-            try {
-                const response = await axios.get(`http://localhost:8080/api/chat/user/${encodeURIComponent(email)}`)
-                setOldChats(response.data);
-            } catch(error) {
-                console.error("Unable to fetch old chats ", error);
-            }
+          try {
+            const response = await axios.get(`http://localhost:8080/api/chat/user/${encodeURIComponent(email)}`);
+            setOldChats(response.data);
+          } catch (error) {
+            console.error("Unable to fetch old chats ", error);
+          }
         };
-
         fetchOldChats();
-    }, [email]);
-
-    const loadChatSessions = async () => {
-        try {
-            await axios.get(`http://localhost:8080/api/chat/user/${encodeURIComponent(email)}`)
-        } catch(error) {
-           console.error("Unable to load chat sessions ", error) 
-        }
-    }
-    loadChatSessions()
+      }, [email]);
 
     const createChatSession = async () => {
 
