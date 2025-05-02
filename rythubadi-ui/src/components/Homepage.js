@@ -11,7 +11,6 @@ function Homepage() {
     const [selectedChatId, setSelectedChatId] = useState(null)
 
     const handleChatSelect = (chatId) => {
-        console.log("selected chat id is ", chatId);
         setSelectedChatId(chatId);
     }
     return (
