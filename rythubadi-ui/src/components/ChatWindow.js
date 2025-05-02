@@ -5,19 +5,25 @@ import { useState, useEffect } from 'react';
 import './ChatWindow.css'
 
 function ChatWindow({email, chatId}) {
+
     const [messages, setMessages] = useState([]);
 
     useEffect(() => {
         const fetchMessages = async () => {
-            try {
-                const response = await axios.get(`http://localhost:8080/api/chat/user/${encodeURIComponent(chatId)}/${encodeURIComponent(email)}/messages`)
-                setMessages(response.data);
-            } catch(error) {
-                console.error("Unable to fetch old chats ", error);
+            if(chatId) {
+                try {
+                    const response = await axios.get(`http://localhost:8080/api/chat/user/${encodeURIComponent(chatId)}/${encodeURIComponent(email)}/messages`)
+                    setMessages(response.data);
+                } catch(error) {
+                    console.error("Unable to fetch old chats ", error);
+                }
+            } else {
+                setMessages([]);
             }
         }
         fetchMessages();
-    }, [messages])
+    }, [chatId, email])
+
     const navigate = useNavigate();
 
     const handleLogout = () => {
