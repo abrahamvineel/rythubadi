@@ -1,14 +1,12 @@
 package rythubadi.auth.controller;
 
-import jakarta.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import rythubadi.auth.dto.ChatMessageDTO;
 import rythubadi.auth.dto.ChatSessionDTO;
-import rythubadi.auth.model.ChatSession;
 import rythubadi.auth.service.ChatService;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -31,8 +29,9 @@ public class ChatController {
         return chatService.getChatSessions(email);
     }
 
-    @GetMapping("/user/{chatId}/messages")
-    public void getMessagesForChatSession(@PathVariable String chatId) {
-        chatService.getMessagesForChatSession(chatId);
+    @GetMapping("/user/{chatId}/{email}/messages")
+    public List<ChatMessageDTO> getMessagesForChatSession(@PathVariable String chatId,
+                                                          @PathVariable String email) {
+        return chatService.getMessagesForChatSession(chatId, email);
     }
 }

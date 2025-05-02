@@ -2,8 +2,8 @@ package rythubadi.auth.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import rythubadi.auth.dto.ChatMessageDTO;
 import rythubadi.auth.dto.ChatSessionDTO;
-import rythubadi.auth.model.ChatMessage;
 import rythubadi.auth.model.ChatSession;
 import rythubadi.auth.model.User;
 import rythubadi.auth.repository.ChatMessageRepository;
@@ -44,8 +44,9 @@ public class ChatService {
         return chatSessionRepository.findAllActiveSessionsByUserId(userId);
     }
 
-    public void getMessagesForChatSession(String chatId) {
-        //TODO: need to create a bot user and hard code bot id and also i think i might need email to fetch userId
-        List<ChatMessage> messages = chatMessageRepository.findMessagesByChatSessionId(chatId);
+    public List<ChatMessageDTO> getMessagesForChatSession(String chatId, String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        long userId = user.get().getId();
+        return chatMessageRepository.findMessagesByChatSessionId(chatId, userId);
     }
 }
