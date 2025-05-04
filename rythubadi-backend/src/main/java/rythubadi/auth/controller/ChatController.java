@@ -4,9 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import rythubadi.auth.dto.ChatMessageDTO;
 import rythubadi.auth.dto.ChatSessionDTO;
+import rythubadi.auth.dto.NewChatSessionDTO;
 import rythubadi.auth.service.ChatService;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/chat")
@@ -20,8 +22,8 @@ public class ChatController {
     }
 
     @PostMapping("/create/{email}")
-    public void createChatSession(@PathVariable String email) {
-        chatService.createChatSession(email);
+    public NewChatSessionDTO createChatSession(@PathVariable String email) {
+        return chatService.createChatSession(email);
     }
 
     @GetMapping("/user/{email}")

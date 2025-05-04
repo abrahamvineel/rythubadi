@@ -11,6 +11,8 @@ import rythubadi.auth.model.MessageStatus;
 @NoArgsConstructor
 public class ChatMessageDTO {
 
+    private long id;
+
     private String content;
 
     private String attachmentURL;

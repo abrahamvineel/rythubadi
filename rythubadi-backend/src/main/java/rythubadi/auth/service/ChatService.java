@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import rythubadi.auth.dto.ChatMessageDTO;
 import rythubadi.auth.dto.ChatSessionDTO;
+import rythubadi.auth.dto.NewChatSessionDTO;
 import rythubadi.auth.model.ChatSession;
 import rythubadi.auth.model.User;
 import rythubadi.auth.repository.ChatMessageRepository;
@@ -30,12 +31,13 @@ public class ChatService {
         this.chatMessageRepository = chatMessageRepository;
     }
 
-    public void createChatSession(String email) {
+    public NewChatSessionDTO createChatSession(String email) {
         Optional<User> user = userRepository.findByEmail(email);
         ChatSession session = new ChatSession();
         session.setUser(user.get());
         session.setTitle("Chat_" + UUID.randomUUID());
-        chatSessionRepository.save(session);
+        ChatSession currentSession = chatSessionRepository.save(session);
+        return new NewChatSessionDTO(currentSession.getId());
     }
 
     public List<ChatSessionDTO> getChatSessions(String email) {
