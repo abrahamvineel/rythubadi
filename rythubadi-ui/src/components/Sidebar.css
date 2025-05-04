@@ -5,7 +5,9 @@
     flex-direction: column;
     gap: 20px;
     border-right: 1px solid #ccc;
-    color: white
+    color: white;
+    height: 95vh; /* Or a specific height that fits your layout */
+    overflow: hidden; /* Prevent the entire sidebar from scrolling */
   }
   
   .new-chat-button {
@@ -18,8 +20,17 @@
     font-weight: bold;
   }
   
-  .new-chat-button:hover {
-    background-color: #0056b3;
+  .old-chats-container {
+    margin-top: auto; /* Push old chats to the bottom */
+    overflow-y: auto; /* Enable vertical scrolling for old chats */
+    max-height: calc(100vh - /* Height of other elements in .chats-container */
+                      20px - /* Padding top */
+                      20px - /* Padding bottom */
+                      20px - /* Gap */
+                      (10px + 15px + 10px) - /* new-chat-button (padding top/bottom + padding) */
+                      20px - /* Gap */
+                      (10px) /* Height of "Old Chats" heading */
+                     );
   }
   
   .old-chats-container {
@@ -38,6 +49,12 @@
     padding: 8px 0;
     cursor: pointer;
     color: #e0e0e0;
+  }
+
+  .old-chats-container ul li.selected {
+    background-color: #4a5568;
+    color: #f7fafc;
+    font-weight: bold; 
   }
   
   .old-chats-container li:hover {

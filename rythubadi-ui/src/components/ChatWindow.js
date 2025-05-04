@@ -35,19 +35,21 @@ function ChatWindow({email, chatId}) {
     return (
         <div className="chat-window">
         <div className="top-right-section">
+           <h3>Rythubadi</h3>
           <h3>Welcome {email}</h3>
           <button onClick={handleLogout}>logout</button>
         </div>
             <div className="chat-messages">
                 {messages.map((message) => {
-                   return <div className="chat-message"> 
-                        <div className={`chat-message ${message.sender}`}>
-                            <p>{message.text}</p>
+                    console.log('message', message)
+                   return <div className="chat-message" key={message.id}> 
+                        <div className={`chat-message ${message.systemGenerated}`}>
+                            <p>{message.content}</p>
                         </div>
                     </div>
                 })}
             </div>
-        <ChatInput />
+            <ChatInput />
         </div>
     )
 }

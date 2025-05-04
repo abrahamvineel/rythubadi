@@ -29,6 +29,7 @@ function Login() {
           if(token) {
             const email = response.data.email;
             localStorage.setItem('authToken', token);
+            localStorage.setItem('email', email);
             navigate('/homepage', { state: { email: email } });
           }
         } else if (response.status === 401) {
