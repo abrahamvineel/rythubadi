@@ -2,9 +2,7 @@ package rythubadi.auth.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import rythubadi.auth.dto.ChatMessageDTO;
-import rythubadi.auth.dto.ChatSessionDTO;
-import rythubadi.auth.dto.NewChatSessionDTO;
+import rythubadi.auth.dto.*;
 import rythubadi.auth.service.ChatService;
 
 import java.util.List;
@@ -35,5 +33,10 @@ public class ChatController {
     public List<ChatMessageDTO> getMessagesForChatSession(@PathVariable String chatId,
                                                           @PathVariable String email) {
         return chatService.getMessagesForChatSession(chatId, email);
+    }
+
+    @PostMapping("/message")
+    public NewChatSessionDTO saveMessage(@RequestBody MessageDetailsRequest request) {
+        return chatService.saveMessage(request);
     }
 }
