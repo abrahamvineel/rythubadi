@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from 'react';
 import './ChatWindow.css'
 
-function ChatWindow({email, chatId}) {
+function ChatWindow({onNewChatCreated, email, chatId, refreshChats }) {
 
     const [messages, setMessages] = useState([]);
 
@@ -49,7 +49,7 @@ function ChatWindow({email, chatId}) {
                     </div>
                 })}
             </div>
-            <ChatInput />
+            <ChatInput onNewChatCreated={onNewChatCreated} email={email} chatId={chatId} refreshChats={refreshChats}/>
         </div>
     )
 }

@@ -4,12 +4,14 @@
      border-top: 1px solid #ccc;   
 }
 
-.chat-input input[type="text"] {
+.chat-input textarea {
     flex-grow: 1;
     padding: 10px;
+    margin-right: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
-    margin-right: 10px;
+    font-size: 1rem;
+    resize: vertical;
   }
   
   .chat-input button {

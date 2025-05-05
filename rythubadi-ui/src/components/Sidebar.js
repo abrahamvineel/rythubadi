@@ -2,20 +2,9 @@ import axios from 'axios'
 import { useState, useEffect } from 'react';
 import './Sidebar.css'
 
-function SideBar({email, onChatSelect, onNewChatCreated, selectedChatId }) {
-    const [oldChats, setOldChats] = useState([]);
-
-    const fetchOldChats = async () => {
-        try {
-          const response = await axios.get(`http://localhost:8080/api/chat/user/${encodeURIComponent(email)}`);
-          setOldChats(response.data);
-        } catch (error) {
-          console.error("Unable to fetch old chats ", error);
-        }
-      };
-
+function SideBar({email, onChatSelect, onNewChatCreated, selectedChatId, oldChats, refreshChats  }) {
     useEffect(() => {
-        fetchOldChats();
+        refreshChats();
       }, [email]);
 
     const createChatSession = async () => {
@@ -25,7 +14,7 @@ function SideBar({email, onChatSelect, onNewChatCreated, selectedChatId }) {
             console.log('resp ', response);
             if(response.data && response.data.chatId) {
                 onNewChatCreated(response.data.chatId);
-                fetchOldChats();
+                refreshChats();
             }
         } catch(error) {
            console.error("Unable to create a chat session ", error) 
