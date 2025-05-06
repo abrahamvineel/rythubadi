@@ -8,19 +8,41 @@ function ChatWindow({onNewChatCreated, email, chatId, refreshChats }) {
 
     const [messages, setMessages] = useState([]);
 
-    useEffect(() => {
-        const fetchMessages = async () => {
-            if(chatId) {
-                try {
-                    const response = await axios.get(`http://localhost:8080/api/chat/user/${encodeURIComponent(chatId)}/${encodeURIComponent(email)}/messages`)
-                    setMessages(response.data);
-                } catch(error) {
-                    console.error("Unable to fetch old chats ", error);
-                }
-            } else {
-                setMessages([]);
+    const fetchMessages = async () => {
+        if(chatId) {
+            try {
+                const response = await axios.get(`http://localhost:8080/api/chat/user/${encodeURIComponent(chatId)}/${encodeURIComponent(email)}/messages`)
+                setMessages(response.data);
+            } catch(error) {
+                console.error("Unable to fetch old chats ", error);
             }
+        } else {
+            setMessages([]);
         }
+    }
+
+    const sendMessage = async (message) => {
+        try {
+            const response = await axios.post('http://localhost:8080/api/chat/message' , {
+                email:email,
+                chatId: chatId,
+                message: message
+            })
+
+            if (response.data.chatId) {
+                refreshChats();
+                onNewChatCreated(response.data.chatId)
+            }
+
+            if (response.status === 200) {
+                fetchMessages()
+            }
+        } catch(error) {
+            console.log(error)
+        }
+    }
+
+    useEffect(() => {
         fetchMessages();
     }, [chatId, email])
 
@@ -41,7 +63,6 @@ function ChatWindow({onNewChatCreated, email, chatId, refreshChats }) {
         </div>
             <div className="chat-messages">
                 {messages.map((message) => {
-                    console.log('message', message)
                    return <div className="chat-message" key={message.id}> 
                         <div className={`chat-message ${message.systemGenerated}`}>
                             <p>{message.content}</p>
@@ -49,7 +70,11 @@ function ChatWindow({onNewChatCreated, email, chatId, refreshChats }) {
                     </div>
                 })}
             </div>
-            <ChatInput onNewChatCreated={onNewChatCreated} email={email} chatId={chatId} refreshChats={refreshChats}/>
+            <ChatInput onNewChatCreated={onNewChatCreated} 
+                        email={email}
+                        chatId={chatId} 
+                        refreshChats={refreshChats}
+                        onSendMessage={sendMessage}/>
         </div>
     )
 }

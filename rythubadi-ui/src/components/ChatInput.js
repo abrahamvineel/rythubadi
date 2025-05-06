@@ -2,30 +2,20 @@ import React, { useState } from 'react';
 import axios from 'axios'
 import './ChatInput.css'
 
-function ChatInput({onNewChatCreated, email, chatId, refreshChats }) {
+function ChatInput({onSendMessage }) {
     const [message, setMessage] = useState('');
 
-    const sendMessage = async () => {
-        try {
-            const response = await axios.post('http://localhost:8080/api/chat/message' , {
-                email:email,
-                chatId: chatId,
-                message: message
-            })
-
-            if (response.data.chatId) {
-                setMessage('');
-                refreshChats();
-                onNewChatCreated(response.data.chatId)
-            }
-        } catch(error) {
-            console.log(error)
+    const sendMessage = () => {
+        if(message.trim()) {
+            onSendMessage(message);
+            setMessage('')
         }
     }
+
     return (
         <div className="chat-input">
             <textarea placeholder="Please type your message" 
-                    value={message} onChange={(e) => setMessage(e.target.value)} rows={3}></textarea>
+                    value={message} onChange={(e) => setMessage(e.target.value)}></textarea>
             <button onClick={sendMessage}>Send</button>
         </div>
     );
