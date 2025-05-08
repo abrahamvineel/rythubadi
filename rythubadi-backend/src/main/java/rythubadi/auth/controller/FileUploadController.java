@@ -24,7 +24,6 @@ public class FileUploadController {
     public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file,
                                              @RequestParam("metadata") String request) throws JsonProcessingException {
 
-
         ObjectMapper objectMapper = new ObjectMapper();
         FileUploadRequest r = objectMapper.readValue(request, FileUploadRequest.class);
 
