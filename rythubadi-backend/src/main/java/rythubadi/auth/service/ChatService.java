@@ -2,10 +2,8 @@ package rythubadi.auth.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import rythubadi.auth.dto.ChatMessageDTO;
-import rythubadi.auth.dto.ChatSessionDTO;
-import rythubadi.auth.dto.MessageDetailsRequest;
-import rythubadi.auth.dto.NewChatSessionDTO;
+import org.springframework.web.multipart.MultipartFile;
+import rythubadi.auth.dto.*;
 import rythubadi.auth.model.ChatMessage;
 import rythubadi.auth.model.ChatSession;
 import rythubadi.auth.model.User;
@@ -23,14 +21,17 @@ public class ChatService {
     private final ChatSessionRepository chatSessionRepository;
     private final UserRepository userRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final FileUploadService fileUploadService;
 
     @Autowired
     public ChatService(ChatSessionRepository chatSessionRepository,
                        UserRepository userRepository,
-                       ChatMessageRepository chatMessageRepository) {
+                       ChatMessageRepository chatMessageRepository,
+                       FileUploadService fileUploadService) {
         this.chatSessionRepository = chatSessionRepository;
         this.userRepository = userRepository;
         this.chatMessageRepository = chatMessageRepository;
+        this.fileUploadService = fileUploadService;
     }
 
     public NewChatSessionDTO createChatSession(String email) {
@@ -73,5 +74,18 @@ public class ChatService {
         message.setContent(request.getMessage());
         chatMessageRepository.save(message);
         return newChatSession;
+    }
+
+    public void saveFile(FileUploadRequest request, MultipartFile file) {
+        Optional<User> user = userRepository.findByEmail(request.getUserEmail());
+        UUID chatUUID = UUID.fromString(request.getChatUUID());
+        Optional<ChatSession> session = chatSessionRepository.findById(chatUUID);
+        FileUploadDTO fileUploadDTO = fileUploadService.uploadFile(request, file);
+        ChatMessage message = new ChatMessage();
+
+        message.setChatSession(session.get());
+        message.setUser(user.get());
+        message.setAttachmentURL(fileUploadDTO.getPreSignedUrl());
+        chatMessageRepository.save(message);
     }
 }

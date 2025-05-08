@@ -16,4 +16,5 @@ public class FileUploadRequest {
     private int fileSizeInBytes;
     @JsonIgnore
     private FileType fileType;
+    private String chatUUID;
 }

@@ -11,7 +11,7 @@ import java.util.List;
 
 @Repository
 public interface FileUploadRepository extends JpaRepository<File, Long> {
-    @Query("select new org.fileupload.dto.FileDTO(f.fileName, f.uploadDate, f.fileSizeInBytes) from File f where f.userEmail = :userEmail")
+    @Query("select new rythubadi.auth.dto.FileDTO(f.fileName, f.uploadDate, f.fileSizeInBytes) from File f where f.userEmail = :userEmail")
     List<FileDTO> findFileByUserEmail(@Param("userEmail") String userEmail);
 
     @Query("select f.url from File f where f.fileName = :fileName")

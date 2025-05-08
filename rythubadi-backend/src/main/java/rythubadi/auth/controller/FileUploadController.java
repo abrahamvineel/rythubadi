@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rythubadi.auth.dto.FileUploadRequest;
+import rythubadi.auth.service.ChatService;
 import rythubadi.auth.service.FileUploadService;
 import rythubadi.auth.model.FileType;
 
@@ -16,7 +17,7 @@ import rythubadi.auth.model.FileType;
 @AllArgsConstructor
 public class FileUploadController {
 
-    private FileUploadService fileUploadService;
+    private ChatService chatService;
 
     @PostMapping("/upload")
     @ResponseStatus(HttpStatus.CREATED)
@@ -31,7 +32,7 @@ public class FileUploadController {
         FileType fileType = FileType.mimeType(mimeType);
         r.setFileType(fileType);
 
-        fileUploadService.uploadFile(r, file);
+        chatService.saveFile(r, file);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("File uploaded");
     }

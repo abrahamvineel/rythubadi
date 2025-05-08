@@ -1,6 +1,7 @@
 package rythubadi.auth.service;
 
 import rythubadi.auth.dto.FileDTO;
+import rythubadi.auth.dto.FileUploadDTO;
 import rythubadi.auth.dto.FileUploadRequest;
 import rythubadi.auth.model.File;
 import rythubadi.auth.model.FileType;
@@ -27,7 +28,7 @@ public class FileUploadService {
         this.s3Service = s3Service;
     }
 
-    public void uploadFile(FileUploadRequest fileUploadRequest, MultipartFile uploadedFile) {
+    public FileUploadDTO uploadFile(FileUploadRequest fileUploadRequest, MultipartFile uploadedFile) {
         File file = new File();
         String fileName = s3Service.uploadFile(uploadedFile);
         String preSignedUrl = s3Service.generatePreSignedUrl(fileName);
@@ -40,13 +41,9 @@ public class FileUploadService {
             file.setFileName(fileName);
             repository.save(file);
         }
-    }
-
-    public List<FileDTO> getFiles(String userEmail) {
-        return repository.findFileByUserEmail(userEmail);
-    }
-
-    public String downloadFile(String fileName) {
-        return repository.findURLByFileName(fileName);
+        FileUploadDTO fileUploadDTO = new FileUploadDTO();
+        fileUploadDTO.setFileName(fileName);
+        fileUploadDTO.setPreSignedUrl(preSignedUrl);
+        return fileUploadDTO;
     }
 }
