@@ -23,6 +23,7 @@ public class ChatMessage {
 
     private String content;
 
+    @Column(length = 512)
     private String attachmentURL;
 
     private AttachmentType type;
