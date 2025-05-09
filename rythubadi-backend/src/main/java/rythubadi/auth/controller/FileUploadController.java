@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rythubadi.auth.dto.FileUploadRequest;
+import rythubadi.auth.dto.NewChatSessionDTO;
 import rythubadi.auth.service.ChatService;
 import rythubadi.auth.service.FileUploadService;
 import rythubadi.auth.model.FileType;
@@ -21,8 +22,8 @@ public class FileUploadController {
 
     @PostMapping("/upload")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file,
-                                             @RequestParam("metadata") String request) throws JsonProcessingException {
+    public NewChatSessionDTO uploadFile(@RequestParam("file") MultipartFile file,
+                                        @RequestParam("metadata") String request) throws JsonProcessingException {
 
         ObjectMapper objectMapper = new ObjectMapper();
         FileUploadRequest r = objectMapper.readValue(request, FileUploadRequest.class);
@@ -31,9 +32,6 @@ public class FileUploadController {
         FileType fileType = FileType.mimeType(mimeType);
         r.setFileType(fileType);
 
-        chatService.saveFile(r, file);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body("File uploaded");
+        return chatService.saveFile(r, file);
     }
-
 }
