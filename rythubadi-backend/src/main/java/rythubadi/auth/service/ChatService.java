@@ -76,9 +76,17 @@ public class ChatService {
         return newChatSession;
     }
 
-    public void saveFile(FileUploadRequest request, MultipartFile file) {
+    public NewChatSessionDTO saveFile(FileUploadRequest request, MultipartFile file) {
         Optional<User> user = userRepository.findByEmail(request.getUserEmail());
-        UUID chatUUID = UUID.fromString(request.getChatUUID());
+        UUID chatUUID;
+        NewChatSessionDTO newChatSession = null;
+        if(request.getChatId() == null) {
+            newChatSession = createChatSession(request.getUserEmail());
+            chatUUID = newChatSession.getChatId();
+        } else {
+            chatUUID = UUID.fromString(request.getChatId());
+        }
+
         Optional<ChatSession> session = chatSessionRepository.findById(chatUUID);
         FileUploadDTO fileUploadDTO = fileUploadService.uploadFile(request, file);
         ChatMessage message = new ChatMessage();
@@ -87,5 +95,6 @@ public class ChatService {
         message.setUser(user.get());
         message.setAttachmentURL(fileUploadDTO.getPreSignedUrl());
         chatMessageRepository.save(message);
+        return newChatSession;
     }
 }
