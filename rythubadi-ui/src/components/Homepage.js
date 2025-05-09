@@ -39,7 +39,8 @@ function Homepage() {
     return (
         <div class="homepage-container">
             <SideBar onChatSelect={handleChatSelect} 
-                chatId={selectedChatId} email={email} 
+                chatId={selectedChatId}
+                email={email} 
                 onNewChatCreated={handleNewlyCreatedChat}
                 selectedChatId={selectedChatId}
                 oldChats={oldChats}

@@ -1,14 +1,14 @@
 import ChatInput from "./ChatInput"
 import axios from 'axios'
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback  } from 'react';
 import './ChatWindow.css'
 
 function ChatWindow({onNewChatCreated, email, chatId, refreshChats }) {
 
     const [messages, setMessages] = useState([]);
 
-    const fetchMessages = async () => {
+    const fetchMessages = useCallback (async () => {
         if(chatId) {
             try {
                 const response = await axios.get(`http://localhost:8080/api/chat/user/${encodeURIComponent(chatId)}/${encodeURIComponent(email)}/messages`)
@@ -19,7 +19,7 @@ function ChatWindow({onNewChatCreated, email, chatId, refreshChats }) {
         } else {
             setMessages([]);
         }
-    }
+    }, [chatId, email]);
 
     const sendMessage = async (message) => {
         try {
@@ -44,7 +44,7 @@ function ChatWindow({onNewChatCreated, email, chatId, refreshChats }) {
 
     useEffect(() => {
         fetchMessages();
-    }, [chatId, email])
+    }, [chatId, email, fetchMessages])
 
     const navigate = useNavigate();
 
@@ -70,10 +70,7 @@ function ChatWindow({onNewChatCreated, email, chatId, refreshChats }) {
                     </div>
                 })}
             </div>
-            <ChatInput onNewChatCreated={onNewChatCreated} 
-                        email={email}
-                        chatId={chatId} 
-                        refreshChats={refreshChats}
+            <ChatInput chatId={chatId} 
                         onSendMessage={sendMessage}/>
         </div>
     )
