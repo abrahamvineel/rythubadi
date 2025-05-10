@@ -66,6 +66,15 @@ function ChatWindow({onNewChatCreated, email, chatId, refreshChats }) {
                    return <div className="chat-message" key={message.id}> 
                         <div className={`chat-message ${message.systemGenerated}`}>
                             <p>{message.content}</p>
+                            {message.attachment && (
+  message.attachment.contentType.startsWith('image/') ? (
+    <img src={message.attachment.url} alt="Attachment" style={{ maxWidth: '200px', maxHeight: '200px' }} />
+  ) : (
+    <a href={message.attachment.url} target="_blank" rel="noopener noreferrer">
+      View Attachment ({message.attachment.name})
+    </a>
+  )
+)}
                         </div>
                     </div>
                 })}
