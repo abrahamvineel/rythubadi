@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import rythubadi.auth.model.AttachmentType;
-import rythubadi.auth.model.FileType;
 
 @Data
 @NoArgsConstructor

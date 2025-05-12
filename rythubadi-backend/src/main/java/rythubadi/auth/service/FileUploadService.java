@@ -1,28 +1,26 @@
 package rythubadi.auth.service;
 
-import rythubadi.auth.dto.FileDTO;
-import rythubadi.auth.dto.FileUploadDTO;
-import rythubadi.auth.dto.FileUploadRequest;
-import rythubadi.auth.model.File;
-import rythubadi.auth.model.FileType;
-import rythubadi.auth.repository.FileUploadRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import rythubadi.auth.dto.FileUploadDTO;
+import rythubadi.auth.dto.FileUploadRequest;
+import rythubadi.auth.model.AttachmentType;
+import rythubadi.auth.model.File;
+import rythubadi.auth.repository.FileUploadRepository;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 @Service
 public class FileUploadService {
 
-    private Set<FileType> blackList;
+    private Set<AttachmentType> blackList;
 
     private FileUploadRepository repository;
 
     private S3Service s3Service;
 
-    public FileUploadService(Set<FileType> blackList, FileUploadRepository repository, S3Service s3Service) {
+    public FileUploadService(Set<AttachmentType> blackList, FileUploadRepository repository, S3Service s3Service) {
         this.blackList = blackList;
         this.repository = repository;
         this.s3Service = s3Service;
