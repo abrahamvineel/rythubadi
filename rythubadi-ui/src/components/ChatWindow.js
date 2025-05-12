@@ -54,6 +54,10 @@ function ChatWindow({onNewChatCreated, email, chatId, refreshChats }) {
         navigate("/")
     }
 
+    const handleFileUploadSuccess = () => {
+        fetchMessages();
+    };
+
     return (
         <div className="chat-window">
         <div className="top-right-section">
@@ -63,24 +67,25 @@ function ChatWindow({onNewChatCreated, email, chatId, refreshChats }) {
         </div>
             <div className="chat-messages">
                 {messages.map((message) => {
-                   return <div className="chat-message" key={message.id}> 
+                                       return <div className="chat-message" key={message.id}> 
                         <div className={`chat-message ${message.systemGenerated}`}>
                             <p>{message.content}</p>
-                            {message.attachment && (
-  message.attachment.contentType.startsWith('image/') ? (
-    <img src={message.attachment.url} alt="Attachment" style={{ maxWidth: '200px', maxHeight: '200px' }} />
-  ) : (
-    <a href={message.attachment.url} target="_blank" rel="noopener noreferrer">
-      View Attachment ({message.attachment.name})
-    </a>
-  )
-)}
+                            {message.attachmentURL && (
+                                message.type === 'IMAGE' ? (
+                                    <img src={message.attachmentURL} alt="Attachment" style={{ maxWidth: '200px', maxHeight: '200px' }} />
+                                ) : (
+                                        <a href={message.attachmentURL} target="_blank" rel="noopener noreferrer">
+                                        View Attachment
+                                        </a>
+                                    )
+                                )}
                         </div>
                     </div>
                 })}
             </div>
             <ChatInput chatId={chatId} 
-                        onSendMessage={sendMessage}/>
+                        onSendMessage={sendMessage}
+                        onFileUploadSuccess={handleFileUploadSuccess}/>
         </div>
     )
 }

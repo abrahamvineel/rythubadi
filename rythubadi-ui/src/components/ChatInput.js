@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import axios from 'axios'
 import './ChatInput.css'
 
-function ChatInput({chatId, onSendMessage }) {
+function ChatInput({chatId, onSendMessage, onFileUploadSuccess }) {
     const [message, setMessage] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
     const fileInputRef = useRef(null)
@@ -43,14 +43,15 @@ function ChatInput({chatId, onSendMessage }) {
             if (response.status === 401) {
                 throw new Error("Unauthorized: Invalid session");
             }
-            else if (!response.ok) {
-                throw new Error("Failed to fetch files");
-            }
+        else if (response.status !== 200 && response.status !== 201) { // Check for non-success status codes
+            throw new Error(`Failed to upload file with status: ${response.status}`);
+        }
+            onFileUploadSuccess();
             alert("file uploaded successfully");
             setSelectedFile(null);
         }  catch(error) {
             console.error("upload failed", error);
-            }
+        }
     }
 
     const handleFileChange = (event) => {
