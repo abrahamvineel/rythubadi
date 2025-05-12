@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import rythubadi.auth.model.AttachmentType;
 import rythubadi.auth.model.FileType;
 
 @Data
@@ -15,6 +16,6 @@ public class FileUploadRequest {
     private String userEmail;
     private int fileSizeInBytes;
     @JsonIgnore
-    private FileType fileType;
+    private AttachmentType fileType;
     private String chatId;
 }

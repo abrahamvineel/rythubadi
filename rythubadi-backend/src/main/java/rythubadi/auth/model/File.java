@@ -19,7 +19,7 @@ public class File {
     private long id;
     private String userEmail;
     private int fileSizeInBytes;
-    private FileType fileType;
+    private AttachmentType fileType;
     @Column(length = 512)
     private String url;
     private Date uploadDate;

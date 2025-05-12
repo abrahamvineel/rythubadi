@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import rythubadi.auth.dto.*;
+import rythubadi.auth.model.AttachmentType;
 import rythubadi.auth.model.ChatMessage;
 import rythubadi.auth.model.ChatSession;
 import rythubadi.auth.model.User;
@@ -94,6 +95,7 @@ public class ChatService {
         message.setChatSession(session.get());
         message.setUser(user.get());
         message.setAttachmentURL(fileUploadDTO.getPreSignedUrl());
+        message.setType(request.getFileType());
         chatMessageRepository.save(message);
         return newChatSession;
     }

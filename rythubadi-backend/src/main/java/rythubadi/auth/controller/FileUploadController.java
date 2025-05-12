@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import rythubadi.auth.dto.FileUploadRequest;
 import rythubadi.auth.dto.NewChatSessionDTO;
+import rythubadi.auth.model.AttachmentType;
 import rythubadi.auth.service.ChatService;
 import rythubadi.auth.service.FileUploadService;
 import rythubadi.auth.model.FileType;
@@ -29,7 +30,7 @@ public class FileUploadController {
         FileUploadRequest r = objectMapper.readValue(request, FileUploadRequest.class);
 
         String mimeType = file.getContentType();
-        FileType fileType = FileType.mimeType(mimeType);
+        AttachmentType fileType = AttachmentType.mimeType(mimeType);
         r.setFileType(fileType);
 
         return chatService.saveFile(r, file);
