@@ -19,3 +19,6 @@ for file in os.listdir(folder_path):
 
 print(f"Total documents loaded {len(docs)}")
 print(docs[0])
+
+print(docs[0].page_content)
+print(docs[0].metadata)
