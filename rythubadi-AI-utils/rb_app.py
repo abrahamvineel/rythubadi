@@ -18,7 +18,6 @@ for file in os.listdir(folder_path):
         docs.extend(file_docs)
 
 print(f"Total documents loaded {len(docs)}")
-print(docs[0])
 
-print(docs[0].page_content)
+print(repr(docs[0]))
 print(docs[0].metadata)
