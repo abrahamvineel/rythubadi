@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from langchain_community.llms import Ollama
 from langchain_community.document_loaders import PyPDFLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 folder_path = './sample_pdfs'
 load_dotenv()
 
@@ -16,8 +17,8 @@ for file in os.listdir(folder_path):
         loader = PyPDFLoader(os.path.join(folder_path, file))
         file_docs = loader.load()
         docs.extend(file_docs)
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1000, chunk_overlap = 200)
+        split_docs = text_splitter.split_documents(docs)
+        print(repr(split_docs[:5]))
 
 print(f"Total documents loaded {len(docs)}")
-
-print(repr(docs[0]))
-print(docs[0].metadata)
