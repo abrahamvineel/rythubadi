@@ -22,6 +22,8 @@ for file in os.listdir(folder_path):
         text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1000, chunk_overlap = 200)
         split_docs = text_splitter.split_documents(docs)
         db = Chroma.from_documents(split_docs[:20], HuggingFaceEmbeddings())
+        query = "how to start farming?"
+        result = db.similarity_search(query)
         print(repr(split_docs[:5]))
 
 print(f"Total documents loaded {len(docs)}")
