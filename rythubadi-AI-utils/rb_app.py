@@ -14,16 +14,27 @@ os.environ['LANGCHAIN_TRACING_V2'] = os.getenv('LANGCHAIN_TRACING_V2')
 
 docs = []
 
-for file in os.listdir(folder_path):
-    if file.lower().endswith('.pdf'):
-        loader = PyPDFLoader(os.path.join(folder_path, file))
-        file_docs = loader.load()
-        docs.extend(file_docs)
-        text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1000, chunk_overlap = 200)
-        split_docs = text_splitter.split_documents(docs)
-        db = Chroma.from_documents(split_docs[:20], HuggingFaceEmbeddings())
-        query = "how to start farming?"
-        result = db.similarity_search(query)
-        print(repr(split_docs[:5]))
+# for file in os.listdir(folder_path):
+#     if file.lower().endswith('.pdf'):
+#         loader = PyPDFLoader(os.path.join(folder_path, file))
+#         file_docs = loader.load()
+#         docs.extend(file_docs)
+#         text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1000, chunk_overlap = 200)
+#         split_docs = text_splitter.split_documents(docs)
+#         db = Chroma.from_documents(split_docs[:20], HuggingFaceEmbeddings())
+#         query = "how to start farming?"
+#         result = db.similarity_search(query)
+#         print(repr(split_docs[:5]))
 
+
+loader = PyPDFLoader(os.path.join(folder_path, 'agriculture-03-00443.pdf'))
+file_docs = loader.load()
+docs.extend(file_docs)
+text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1000, chunk_overlap = 200)
+split_docs = text_splitter.split_documents(docs)
+db = Chroma.from_documents(split_docs[:20], HuggingFaceEmbeddings())
+query = "causes of erosion"
+result = db.similarity_search(query)
+print(f"result: {result[0].page_content}")
+# print(repr(split_docs[:5]))
 print(f"Total documents loaded {len(docs)}")
