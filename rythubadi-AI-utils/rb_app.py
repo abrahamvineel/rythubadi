@@ -5,6 +5,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
+from langchain_community.vectorstores import FAISS
 folder_path = './sample_pdfs'
 load_dotenv()
 
@@ -32,7 +33,8 @@ file_docs = loader.load()
 docs.extend(file_docs)
 text_splitter = RecursiveCharacterTextSplitter(chunk_size = 1000, chunk_overlap = 200)
 split_docs = text_splitter.split_documents(docs)
-db = Chroma.from_documents(split_docs[:20], HuggingFaceEmbeddings())
+#db = Chroma.from_documents(split_docs[:20], HuggingFaceEmbeddings())
+db = FAISS.from_documents(docs[:20], HuggingFaceEmbeddings())
 query = "causes of erosion"
 result = db.similarity_search(query)
 print(f"result: {result[0].page_content}")
