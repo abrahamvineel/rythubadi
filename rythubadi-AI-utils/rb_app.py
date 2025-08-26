@@ -43,7 +43,6 @@ print(f"result: {result[0].page_content}")
 # print(repr(split_docs[:5]))
 
 
-
 llm = Ollama(model="llama2")
 #document_chain = create_stuff_documents_chain(llm, prompt)
 print(f"Total documents loaded {len(docs)}")
