@@ -7,6 +7,7 @@ from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain_community.vectorstores import FAISS
 from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.prompts import ChatPromptTemplate
 
 folder_path = './sample_pdfs'
 load_dotenv()
@@ -45,3 +46,10 @@ print(f"result: {result[0].page_content}")
 llm = Ollama(model="llama2")
 #document_chain = create_stuff_documents_chain(llm, prompt)
 print(f"Total documents loaded {len(docs)}")
+
+prompt = ChatPromptTemplate.from_template("""
+Answer the following question based on the context
+<context>
+{context}
+</context>
+Question: {input}""")
