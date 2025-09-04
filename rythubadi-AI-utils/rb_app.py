@@ -54,5 +54,4 @@ Answer the following question based on the context
 </context>
 Question: {input}""")
 
-
 document_chain = create_stuff_documents_chain(llm, prompt)
