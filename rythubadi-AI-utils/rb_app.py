@@ -8,6 +8,7 @@ from langchain_community.vectorstores import Chroma
 from langchain_community.vectorstores import FAISS
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
+from langchain.chains import create_retrieval_chain
 
 folder_path = './sample_pdfs'
 load_dotenv()
@@ -55,5 +56,9 @@ Answer the following question based on the context
 Question: {input}""")
 
 document_chain = create_stuff_documents_chain(llm, prompt)
+retriever = db.as_retriever()
 
 #retrievers
+retrieval_chain = create_retrieval_chain(retriever, document_chain)
+response = retrieval_chain.invoke({"input":"what is farming"})
+response['answer']
