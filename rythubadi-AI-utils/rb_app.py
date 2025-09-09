@@ -62,3 +62,5 @@ retriever = db.as_retriever()
 retrieval_chain = create_retrieval_chain(retriever, document_chain)
 response = retrieval_chain.invoke({"input":"what is farming"})
 response['answer']
+
+#multi source rag using lang chain tools
