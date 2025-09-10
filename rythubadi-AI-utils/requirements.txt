@@ -6,3 +6,5 @@ pypdf
 sentence-transformers
 chromadb
 faiss-cpu
+wikipedia
+arxiv

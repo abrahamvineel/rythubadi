@@ -9,6 +9,8 @@ from langchain_community.vectorstores import FAISS
 from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains import create_retrieval_chain
+from langchain_community.tools import WikipediaQueryRun
+from langchain_community.utilities import WikipediaAPIWrapper
 
 folder_path = './sample_pdfs'
 load_dotenv()
@@ -41,10 +43,10 @@ split_docs = text_splitter.split_documents(docs)
 db = FAISS.from_documents(docs[:20], HuggingFaceEmbeddings())
 query = "causes of erosion"
 result = db.similarity_search(query)
-print(f"result: {result[0].page_content}")
+# print(f"result: {result[0].page_content}")
 # print(repr(split_docs[:5]))
 
-llm = Ollama(model="llama2")
+# llm = Ollama(model="llama2")
 #document_chain = create_stuff_documents_chain(llm, prompt)
 print(f"Total documents loaded {len(docs)}")
 
@@ -55,12 +57,14 @@ Answer the following question based on the context
 </context>
 Question: {input}""")
 
-document_chain = create_stuff_documents_chain(llm, prompt)
-retriever = db.as_retriever()
+# document_chain = create_stuff_documents_chain(llm, prompt)
+# retriever = db.as_retriever()
 
-#retrievers
-retrieval_chain = create_retrieval_chain(retriever, document_chain)
-response = retrieval_chain.invoke({"input":"what is farming"})
-response['answer']
+# #retrievers
+# retrieval_chain = create_retrieval_chain(retriever, document_chain)
+# response = retrieval_chain.invoke({"input":"what is farming"})
+# response['answer']
 
 #multi source rag using lang chain tools
+api_wrapper = WikipediaAPIWrapper(top_k_results=1,doc_content_chars_max=200)
+tool=WikipediaQueryRun(api_wrapper=api_wrapper)
