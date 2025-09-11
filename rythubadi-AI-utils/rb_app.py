@@ -12,6 +12,10 @@ from langchain.chains import create_retrieval_chain
 from langchain_community.tools import WikipediaQueryRun
 from langchain_community.utilities import WikipediaAPIWrapper
 
+from langchain_community.document_loaders import WebBaseLoader
+from langchain_community.vectorstores import FAISS
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
 folder_path = './sample_pdfs'
 load_dotenv()
 
@@ -67,4 +71,15 @@ Question: {input}""")
 
 #multi source rag using lang chain tools
 api_wrapper = WikipediaAPIWrapper(top_k_results=1,doc_content_chars_max=200)
-tool=WikipediaQueryRun(api_wrapper=api_wrapper)
+wiki_tool=WikipediaQueryRun(api_wrapper=api_wrapper)
+
+loader = WebBaseLoader("https://docs.langchain.com/langsmith/home")
+docs=loader.load()
+documents=RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+vectordb=FAISS.from_documents(documents, HuggingFaceEmbeddings)
+ret=vectordb.as_retriever()
+
+from langchain.tools.retriever import create_retriever_tool
+web_tool = create_retriever_tool(ret,"langsmith_search", "Search for info about langsmith")
+
+tools=[wiki_tool, web_tool]
