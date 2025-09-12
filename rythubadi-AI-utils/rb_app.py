@@ -100,3 +100,8 @@ prompt.messages # default prompt templates from openai
 
 from langchain.agents import create_openai_tools_agent
 agent=create_openai_tools_agent(llm, tools, prompt)
+
+#Agent Executor
+
+from langchain.agents import AgentExecutor
+agent_executor = AgentExecutor(agent=agent,  tools=tools, verbose=True)
