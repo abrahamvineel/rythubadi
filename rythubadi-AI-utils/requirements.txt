@@ -8,3 +8,5 @@ chromadb
 faiss-cpu
 wikipedia
 arxiv
+langchain_openai
+langchainhub

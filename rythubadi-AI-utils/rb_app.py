@@ -83,3 +83,20 @@ from langchain.tools.retriever import create_retriever_tool
 web_tool = create_retriever_tool(ret,"langsmith_search", "Search for info about langsmith")
 
 tools=[wiki_tool, web_tool]
+
+from dotenv import load_dotenv
+load_dotenv()
+
+import os
+os.environ['OPENAI_API_KEY']=os.get_env("OPENAI_API_KEY")
+
+from langchain_openai import ChatOpenAI
+
+llm=ChatOpenAI(model="gpt-3.5-turbo-0125", temperature=0)
+
+from langchain import hub
+prompt = hub.pull("hwchase17/openai-functions-agent")
+prompt.messages # default prompt templates from openai
+
+from langchain.agents import create_openai_tools_agent
+agent=create_openai_tools_agent(llm, tools, prompt)
