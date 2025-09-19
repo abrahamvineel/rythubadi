@@ -22,3 +22,6 @@ split_docs = splitter.split_documents(all_docs)
 embeddings = OpenAIEmbeddings()
 vectordb = FAISS.from_documents(split_docs, embeddings)
 vectordb.save_local("pdf_index")
+
+
+#load from vectordb and send to openai
