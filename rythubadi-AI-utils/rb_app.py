@@ -1,5 +1,5 @@
+from langchain.vectorstores import FAISS
+from langchain.embeddings import OpenAIEmbeddings
 
-
-
-#load from vectordb and send to openai
-
+embeddings = OpenAIEmbeddings()
+vectordb = FAISS.load_local("pdf_index", embeddings)
