@@ -14,7 +14,7 @@ for file in os.listdir(folder_path):
     if file.endswith(".pdf"):
         loader = PyPDFLoader(os.path.join(folder_path, file))
         docs = loader.load()
-        all_docs.append(docs)
+        all_docs.extend(docs)
 
 splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 split_docs = splitter.split_documents(all_docs)
