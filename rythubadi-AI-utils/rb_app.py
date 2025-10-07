@@ -8,4 +8,4 @@ query = "how to check soil moisture?"
 docs = vectordb.similarity_search(query, k=3)
 print(docs[0].page_content)
 
-#have chat templates?
+#have chat templates? - not needed
