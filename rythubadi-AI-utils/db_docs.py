@@ -8,13 +8,15 @@ from dotenv import load_dotenv
 load_dotenv()
 folder_path = "./sample_pdfs"
 
-all_docs = []
+def extract_text_from_pdf():
+    all_docs = []
 
-for file in os.listdir(folder_path):
-    if file.endswith(".pdf"):
-        loader = PyPDFLoader(os.path.join(folder_path, file))
-        docs = loader.load()
-        all_docs.extend(docs)
+    for file in os.listdir(folder_path):
+        if file.endswith(".pdf"):
+            loader = PyPDFLoader(os.path.join(folder_path, file))
+            docs = loader.load()
+            all_docs.extend(docs)
+    return all_docs
 
 splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 split_docs = splitter.split_documents(all_docs)
