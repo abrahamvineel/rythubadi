@@ -1,5 +1,5 @@
 import os
-from langchain_community.document_loaders import PyPDFLoader
+import PyPDF2
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
@@ -13,7 +13,7 @@ def extract_text_from_pdf():
 
     for file in os.listdir(folder_path):
         if file.endswith(".pdf"):
-            loader = PyPDFLoader(os.path.join(folder_path, file))
+            loader = PyPDF2.PdfReader(os.path.join(folder_path, file))
             docs = loader.load()
             all_docs.extend(docs)
     return all_docs
