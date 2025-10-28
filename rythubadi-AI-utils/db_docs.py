@@ -18,6 +18,8 @@ def extract_text_from_pdf():
             all_docs.extend(docs)
     return all_docs
 
+all_docs = extract_text_from_pdf()
+
 splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
 split_docs = splitter.split_documents(all_docs)
 
