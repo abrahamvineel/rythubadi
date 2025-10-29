@@ -1,0 +1,1 @@
+BASE_MODEL = "gpt2"
