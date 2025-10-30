@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 folder_path = "./sample_pdfs"
 
+
 def extract_text_from_pdf():
     all_docs = []
 
