@@ -2,6 +2,9 @@ import os
 import pytorch
 import PyPDF2
 from constants import BASE_MODEL
+from transformers import (AutoTokenizer, AutoModelForCausalLM)
+
+
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
@@ -9,7 +12,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 folder_path = "./sample_pdfs"
-
 
 def extract_text_from_pdf():
     all_docs = []
@@ -20,6 +22,8 @@ def extract_text_from_pdf():
             docs = loader.load()
             all_docs.extend(docs)
     return all_docs
+
+model = AutoModelForCausalLM.from_pretrained(BASE_MODEL)
 
 all_docs = extract_text_from_pdf()
 
