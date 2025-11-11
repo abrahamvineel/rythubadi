@@ -3,6 +3,7 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
+from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -22,3 +23,5 @@ split_docs = splitter.split_documents(all_docs)
 embeddings = OpenAIEmbeddings()
 vectordb = FAISS.from_documents(split_docs, embeddings)
 vectordb.save_local("pdf_index")
+
+llm = ChatOpenAI(model="gpt-4", temperature=0.7)

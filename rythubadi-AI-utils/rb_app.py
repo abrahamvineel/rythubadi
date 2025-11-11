@@ -9,3 +9,8 @@ docs = vectordb.similarity_search(query, k=3)
 print(docs[0].page_content)
 
 #have chat templates? - not needed
+
+"""
+instead of chat templates may its good to pass the question directly to llm with pdfs context?
+or use the llm directly?
+"""
