@@ -4,6 +4,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain_openai import ChatOpenAI
+from langchain.chains import RetrievalQA
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -25,3 +26,9 @@ vectordb = FAISS.from_documents(split_docs, embeddings)
 vectordb.save_local("pdf_index")
 
 llm = ChatOpenAI(model="gpt-4", temperature=0.7)
+qa_chain = RetrievalQA.from_chain_type(
+    llm=llm,
+    chain_type="stuff",
+    retriever=vectordb.as_retriever(search_kwargs={"k": 3}),
+    return_source_documents=True
+)
