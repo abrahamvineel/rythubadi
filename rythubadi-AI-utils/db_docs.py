@@ -25,6 +25,7 @@ embeddings = OpenAIEmbeddings()
 vectordb = FAISS.from_documents(split_docs, embeddings)
 vectordb.save_local("pdf_index")
 
+#Using GPT-4 as base model
 llm = ChatOpenAI(model="gpt-4", temperature=0.7)
 qa_chain = RetrievalQA.from_chain_type(
     llm=llm,
