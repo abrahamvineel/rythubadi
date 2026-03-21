@@ -12,6 +12,4 @@ class ProducerProfile:
     def check_ownership(self, requesting_producer_id: UUID) -> None:
         if requesting_producer_id != self.producer_id:
             raise UnauthorisedOperationError("Requesting producer id is not matching")
-        else:
-            print("Ownership check passed")
         
