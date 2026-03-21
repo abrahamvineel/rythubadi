@@ -7,7 +7,7 @@ import pytest
 class TestProduct:
 
     def test_product_creation_success(self):
-        product = Product(ProductCategory.CROP, PerishabilityLevel.CRITICAL)
+        product = Product(ProductCategory.GRAIN, PerishabilityLevel.CRITICAL)
     
     def test_invalid_category_raises_error(self):
         with pytest.raises(InvalidProductCategoryError):

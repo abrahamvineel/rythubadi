@@ -6,3 +6,11 @@ class UnauthorisedOperationError(Exception):
 class InvalidProductCategoryError(Exception):
         """Raised when there is incorrect product category"""
         pass
+
+class NoProducerTypeError(Exception):
+        """Raised when there is no producer type"""
+        pass
+        
+class InvalidProducerTypeError(Exception):
+        """Raised when there is invlaid producer type"""
+        pass
