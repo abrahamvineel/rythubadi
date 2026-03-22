@@ -14,3 +14,7 @@ class NoProducerTypeError(Exception):
 class InvalidProducerTypeError(Exception):
         """Raised when there is invlaid producer type"""
         pass
+
+class ProductAlreadyExistsError(Exception):
+        """Raised when product already exists when adding product for producer profile"""
+        pass
