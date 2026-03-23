@@ -18,3 +18,11 @@ class InvalidProducerTypeError(Exception):
 class ProductAlreadyExistsError(Exception):
         """Raised when product already exists when adding product for producer profile"""
         pass
+
+class InvalidPriceError(Exception):
+        """Raised when sell mode price is <= 0"""
+        pass
+
+class InvalidListingModeError(Exception):
+        """Raised when listing mode is invlaid"""
+        pass
