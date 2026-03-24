@@ -1,0 +1,3 @@
+
+class MarketListingService:
+    pass
