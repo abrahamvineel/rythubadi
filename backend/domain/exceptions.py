@@ -26,3 +26,7 @@ class InvalidPriceError(Exception):
 class InvalidListingModeError(Exception):
         """Raised when listing mode is invlaid"""
         pass
+
+class InvalidPhotoUrlError(Exception):
+        """Raise when photo url is invalid"""
+        pass

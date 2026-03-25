@@ -1,6 +1,6 @@
 from domain.listing_mode import ListingMode
 from domain.market_listing import MarketListing
-from domain.exceptions import InvalidPriceError, InvalidListingModeError
+from domain.exceptions import InvalidPriceError, InvalidListingModeError, InvalidPhotoUrlError
 from domain.product_category import ProductCategory
 from domain.producer_profile import ProducerProfile
 from domain.producer_type import ProducerType
@@ -20,7 +20,7 @@ class TestMarketListing:
         price = Decimal('0.1')
         created_at = datetime.now()
         profile = ProducerProfile(uuid.uuid4(), frozenset({ProducerType.FARMER}), "farmer1")
-        market_listing = MarketListing(listing_id, listing_mode, price, product, created_at, profile.producer_id, True)
+        market_listing = MarketListing(listing_id, listing_mode, price, product, created_at, profile.producer_id, True, None)
 
         assert market_listing.listing_id == listing_id
         assert market_listing.listing_mode == ListingMode.BOTH
@@ -37,7 +37,7 @@ class TestMarketListing:
         created_at = datetime.now()
         
         with pytest.raises(InvalidPriceError):
-            MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True)
+            MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True, None)
 
     def test_both_mode_price_zero_raises_invalid_price_error (self):
         product = Product(ProductCategory.CHEESE, PerishabilityLevel.CRITICAL)
@@ -47,7 +47,7 @@ class TestMarketListing:
         created_at = datetime.now()
         
         with pytest.raises(InvalidPriceError):
-            MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True)
+            MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True, None)
         
 
     def test_invalid_listing_mode(self):
@@ -58,7 +58,7 @@ class TestMarketListing:
         created_at = datetime.now()
         
         with pytest.raises(InvalidListingModeError):
-            MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True)
+            MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True, None)
                
     def test_should_convert_to_donation_success(self):
         product = Product(ProductCategory.CHEESE, PerishabilityLevel.CRITICAL)
@@ -66,7 +66,7 @@ class TestMarketListing:
         listing_mode = ListingMode.BOTH
         price = Decimal('0.1')
         created_at = datetime.now()
-        market_listing = MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True)
+        market_listing = MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True, None)
         
         assert market_listing.should_convert_to_donation(created_at + timedelta(hours=7)) == True
 
@@ -77,7 +77,7 @@ class TestMarketListing:
         listing_mode = ListingMode.BOTH
         price = Decimal('0.1')
         created_at = datetime.now()
-        market_listing = MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True)
+        market_listing = MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True, None)
         
         assert market_listing.should_convert_to_donation(created_at + timedelta(hours=0)) == False
 
@@ -89,7 +89,7 @@ class TestMarketListing:
         created_at = datetime.now()
         
         with pytest.raises(InvalidPriceError):
-            MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True)
+            MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True, None)
     
     def test_donate_mode_price_zero_success(self):
         product = Product(ProductCategory.CHEESE, PerishabilityLevel.CRITICAL)
@@ -97,5 +97,23 @@ class TestMarketListing:
         listing_mode = ListingMode.DONATE
         price = Decimal('0.0')
         created_at = datetime.now()
-        MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True)
+        MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True, None)
+    
+    def test_add_photo_on_market_list(self):
+        product = Product(ProductCategory.CHEESE, PerishabilityLevel.CRITICAL)
+        listing_id = uuid.uuid4()
+        listing_mode = ListingMode.DONATE
+        price = Decimal('0.0')
+        created_at = datetime.now()
+        photo_url = "aws.s3.market_list.photo1.jpg"
+        MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True, photo_url)
+    
+    def test_invalid_photo_url_on_market_list(self):
+        product = Product(ProductCategory.CHEESE, PerishabilityLevel.CRITICAL)
+        listing_id = uuid.uuid4()
+        listing_mode = ListingMode.DONATE
+        price = Decimal('0.0')
+        created_at = datetime.now()
+        with pytest.raises(InvalidPhotoUrlError):
+            MarketListing(listing_id, listing_mode, price, product, created_at, uuid.uuid4(), True, "")
     
