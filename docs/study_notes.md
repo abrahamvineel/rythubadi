@@ -255,6 +255,63 @@ Instead of a class creating its own dependencies (`self.repo = SupabaseRepo()`),
 
 ---
 
+## 17. Security Headers
+
+Four headers added to every response via FastAPI middleware:
+
+| Header | Attack prevented | Value |
+|---|---|---|
+| `X-Content-Type-Options` | MIME sniffing — browser executing uploaded file as script | `nosniff` |
+| `X-Frame-Options` | Clickjacking — app embedded in hidden iframe | `DENY` |
+| `Strict-Transport-Security` | SSL stripping — network attacker downgrades to HTTP | `max-age=31536000; includeSubDomains` |
+| `X-Request-ID` | Not a defence — observability. Unique UUID per request for log correlation | `str(uuid4())` |
+
+Added in `app.py` middleware — runs once for every request, not per route.
+
+---
+
+## 18. Middleware
+
+```python
+@app.middleware("http")
+async def add_security_headers(request, call_next):
+    response = await call_next(request)  # run the route first
+    response.headers["X-Frame-Options"] = "DENY"
+    return response
+```
+
+- `call_next(request)` executes the route and returns the response
+- Headers are set on the response object after the route runs
+- `return response` is mandatory — without it FastAPI returns None → 500
+
+Use middleware for cross-cutting concerns: security headers, logging, rate limiting.
+
+---
+
+## 19. JWT Verification Flow (Phase 2 — Clerk)
+
+```
+Request: Authorization: Bearer eyJhbGc...
+        ↓
+dependencies.py: get_current_user(request: Request)
+  1. Read Authorization header → 401 if missing
+  2. Split "Bearer <token>" → extract raw token
+  3. TODO: fetch Clerk JWKS public key
+  4. TODO: PyJWT decode + verify signature
+  5. TODO: check exp not passed
+  6. Return claims dict {"sub": "...", "email": "...", "role": "..."}
+        ↓
+Route: claims: dict = Depends(get_current_user)
+  producer_id = UUID(claims["sub"])
+```
+
+- Private key: Clerk's secret, signs tokens
+- Public key: published by Clerk, your server verifies with it
+- Valid signature proves: token was issued by Clerk
+- Does NOT prove: token hasn't expired, user still exists, token not stolen
+
+---
+
 ## 13. FastAPI — Routes, Routers, and Dependency Injection
 
 ### What FastAPI is
@@ -370,3 +427,11 @@ The benchmark question: after using this feature for one season, does the farmer
 13. **What is `@contextmanager` used for?** Makes a generator function work with `with`. Code before `yield` is setup, code after is teardown. Used for transactions: yield in try, commit on success, rollback on exception.
 14. **Why did we make `build_services` a plain function instead of a class method?** The class had no state and one method. In Python, unnecessary classes add complexity without benefit. A module-level function is idiomatic.
 15. **Where does the AI stop and the human start?** The AI advises, retrieves, translates, generates. The human confirms every action with financial, legal, physical, or reputational consequences.
+16. **What is the difference between 401 and 403?** 401 = not authenticated (no token or invalid token). 403 = authenticated but not authorised (wrong role).
+17. **What does verifying a JWT signature prove?** That the token was issued by whoever holds the private key (Clerk). It does NOT prove the token hasn't expired — you must check `exp` separately.
+18. **Why put `get_current_user` in `dependencies.py` instead of each route file?** Avoids duplication. One bug fix applies everywhere. All routes share the same auth logic without copying it.
+19. **What is middleware in FastAPI?** Code that intercepts every request and response. Used for cross-cutting concerns like security headers, logging, rate limiting — logic that applies to all routes equally.
+20. **Why does `X-Request-ID` use a UUID per request?** Observability — lets you grep all logs for one specific request when debugging. Without it, correlating logs across services is nearly impossible.
+21. **What is clickjacking and how does `X-Frame-Options: DENY` prevent it?** Attacker embeds your app in a hidden iframe on their page, tricks a logged-in user into clicking invisible buttons. DENY prevents your app from being framed at all.
+22. **What is MIME sniffing and what stops it?** Browser guesses content type and may execute a file as script even if server says otherwise. `X-Content-Type-Options: nosniff` forces browser to trust the declared Content-Type.
+23. **What does `Strict-Transport-Security` do?** Tells the browser to always use HTTPS for this domain for 1 year. Prevents SSL stripping attacks where a network attacker downgrades HTTP.
