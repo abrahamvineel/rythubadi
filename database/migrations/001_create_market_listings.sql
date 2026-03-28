@@ -10,7 +10,7 @@ CREATE TYPE IF NOT EXISTS perishability_level AS ENUM ('CRITICAL', 'HIGH', 'MEDI
 
 
 CREATE TABLE IF NOT EXISTS market_listing (
-    listing_id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    listing_id UUID PRIMARY KEY,
     listing_mode listing_mode NOT NULL,
     price NUMERIC(10, 4) NOT NULL,
     product_category product_category NOT NULL,
