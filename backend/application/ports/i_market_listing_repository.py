@@ -1,6 +1,7 @@
 from typing import Protocol, Optional, Iterator
 from uuid import UUID
 from domain.market_listing import MarketListing
+import datetime
 
 class IMarketListingRepository(Protocol):
 
@@ -10,7 +11,7 @@ class IMarketListingRepository(Protocol):
 
     def find_by_producer_id(self, producer_id: UUID) -> list[MarketListing]: ...
 
-    def find_active(self, page: int, page_size: int) -> list[MarketListing]: ...
+    def find_active(self, limit: int, created_at: Optional[datetime.datetime], listing_id: Optional[UUID]) -> list[MarketListing]: ...
 
     def find_all_active(self) -> list[MarketListing]: ...
 
