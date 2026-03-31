@@ -52,3 +52,6 @@ class MarketListingService:
                                                 )        
 
                                       self.repo.save(listing)
+
+    def get_active_listings_for_cursor(self, limit: int, created_at: Optional[datetime], listing_id: Optional[UUID]):
+           return self.repo.find_active(limit, created_at, listing_id)

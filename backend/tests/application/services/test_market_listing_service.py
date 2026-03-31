@@ -24,7 +24,7 @@ class TestMarketListingService:
             photo_url="test"
         )
 
-        active = repo.find_active(page=1, page_size=10)
+        active = repo.find_active(limit=10, created_at=None, listing_id=None)
         assert len(active) == 1
         assert active[0].listing_mode == ListingMode.SELL
 
@@ -46,7 +46,38 @@ class TestMarketListingService:
         old = repo.find_by_id(listing.listing_id)
 
         assert old.is_active == False
-        active = repo.find_active(page=1, page_size=10)
+        active = repo.find_active(limit=10, created_at=None, listing_id=None)
         assert len(active) == 1
         assert active[0].listing_mode == ListingMode.DONATE
-        
+    
+    def test_get_active_listings_given_cursor_returns_older_listings(self):
+        listing1 = MarketListing(
+            uuid.uuid4(), ListingMode.SELL, Decimal('50'),
+            Product(ProductCategory.CHEESE, PerishabilityLevel.CRITICAL),
+            datetime(2024, 1, 1, 0, 0, 0), uuid.uuid4(), True, "None"
+        )
+
+        listing2 = MarketListing(
+            uuid.uuid4(), ListingMode.SELL, Decimal('50'),
+            Product(ProductCategory.CHEESE, PerishabilityLevel.CRITICAL),
+            datetime(2024, 2, 1, 0, 0, 0), uuid.uuid4(), True, "None"
+        )
+
+        listing3 = MarketListing(
+            uuid.uuid4(), ListingMode.SELL, Decimal('50'),
+            Product(ProductCategory.CHEESE, PerishabilityLevel.CRITICAL),
+            datetime(2024, 3, 1, 0, 0, 0), uuid.uuid4(), True, "None"
+        )
+
+        repo = InMemoryMarketListingRepository()
+
+        service = MarketListingService(repo)
+        repo.save(listing1)
+        repo.save(listing2)
+        repo.save(listing3)
+
+        active_listings = service.get_active_listings_for_cursor(5, datetime(2024, 2, 1, 0, 0, 0), listing2.listing_id)
+
+        assert len(active_listings) == 1
+        assert active_listings[0].listing_id == listing1.listing_id
+        assert active_listings[0].created_at == listing1.created_at

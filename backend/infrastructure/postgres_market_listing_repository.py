@@ -6,6 +6,8 @@ from psycopg2.pool import ThreadedConnectionPool
 from psycopg2.extras import RealDictCursor
 from infrastructure.market_listing_mapper import domain_to_row, row_to_domain
 import structlog 
+from  datetime import datetime
+
 logger = structlog.get_logger()
 
 class PostgresMarketListingRepository:
@@ -58,13 +60,18 @@ class PostgresMarketListingRepository:
         finally:
             self.pool.putconn(conn)
     
-    def find_active(self, page: int, page_size: int) -> list[MarketListing]:
+    def find_active(self, limit: int, created_at: Optional[datetime], listing_id: Optional[UUID]) -> list[MarketListing]:
         conn = self.pool.getconn()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                offset = (page - 1) * page_size
-                cur.execute("SELECT listing_id, listing_mode, price, product_category, perishability_level, created_at, producer_id, is_active, photo_url" \
-                " FROM market_listing WHERE is_active = true OFFSET %s LIMIT %s", (offset, page_size))
+                if created_at is None:
+                    cur.execute("SELECT listing_id, listing_mode, price, product_category, perishability_level, created_at, producer_id, is_active, photo_url" \
+                    " FROM market_listing WHERE is_active = true " \
+                    "ORDER BY created_at DESC, listing_id DESC LIMIT %s", (limit, ))
+                else:
+                    cur.execute("SELECT listing_id, listing_mode, price, product_category, perishability_level, created_at, producer_id, is_active, photo_url" \
+                    " FROM market_listing WHERE is_active = true AND (created_at < %s OR (created_at = %s AND listing_id < %s))" \
+                    "ORDER BY created_at DESC, listing_id DESC LIMIT %s", (created_at, created_at, listing_id, limit))                    
                 res = cur.fetchall()
                 return [row_to_domain(row) for row in res]
         except Exception:

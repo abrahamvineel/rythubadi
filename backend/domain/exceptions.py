@@ -30,3 +30,7 @@ class InvalidListingModeError(Exception):
 class InvalidPhotoUrlError(Exception):
         """Raise when photo url is invalid"""
         pass
+
+class ListingNotFoundError(Exception):
+        """Raise when listing is not present"""
+        pass
