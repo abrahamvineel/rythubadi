@@ -7,6 +7,8 @@ from datetime import datetime
 from decimal import Decimal
 from domain.market_listing import MarketListing
 from application.services.market_listing_service import MarketListingService
+import pytest
+from domain.exceptions import ListingNotFoundError
 import uuid
 
 class TestMarketListingService:
@@ -81,3 +83,24 @@ class TestMarketListingService:
         assert len(active_listings) == 1
         assert active_listings[0].listing_id == listing1.listing_id
         assert active_listings[0].created_at == listing1.created_at
+
+    def test_get_market_listing_by_id_success(self):
+        listing = MarketListing(
+            uuid.uuid4(), ListingMode.SELL, Decimal('50'),
+            Product(ProductCategory.CHEESE, PerishabilityLevel.CRITICAL),
+            datetime(2024, 1, 1, 0, 0, 0), uuid.uuid4(), True, "None"
+        )
+        repo = InMemoryMarketListingRepository()
+
+        service = MarketListingService(repo)
+        repo.save(listing)
+
+        active_listing = service.get_listing_by_id(listing.listing_id)
+
+        assert active_listing.listing_id == listing.listing_id
+
+    def test_market_listing_by_id_raises_execption_on_no_listings(self):
+        repo = InMemoryMarketListingRepository()
+        service = MarketListingService(repo)
+        with pytest.raises(ListingNotFoundError):
+            service.get_listing_by_id(uuid.uuid4())

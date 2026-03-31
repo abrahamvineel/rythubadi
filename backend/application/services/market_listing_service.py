@@ -7,6 +7,7 @@ from decimal import Decimal
 from domain.market_listing import MarketListing
 from uuid import UUID, uuid4
 from typing import Optional
+from domain.exceptions import ListingNotFoundError
 
 class MarketListingService:
     
@@ -55,3 +56,9 @@ class MarketListingService:
 
     def get_active_listings_for_cursor(self, limit: int, created_at: Optional[datetime], listing_id: Optional[UUID]):
            return self.repo.find_active(limit, created_at, listing_id)
+
+    def get_listing_by_id(self, listing_id: UUID):
+           listing = self.repo.find_by_id(listing_id)
+           if listing is None:
+                  raise ListingNotFoundError("Listing is not found in the database")
+           return listing

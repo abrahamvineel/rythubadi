@@ -12,6 +12,7 @@ from presentation.dependencies import get_current_user
 from datetime import datetime
 import base64
 import json
+from domain.exceptions import ListingNotFoundError
 
 router = APIRouter()
 
@@ -98,6 +99,23 @@ def get_listings(cursor: Optional[str] = Query(default=None),
 
 @router.get("/listings/{listing_id}", status_code=200)
 def get_listing(listing_id: UUID,
-                claims: dict = Depends(get_current_user)):
-    
-    
+                claims: dict = Depends(get_current_user),
+                service = Depends(get_market_listing_service)):
+    try:
+        listing = service.get_listing_by_id(listing_id)
+        return ListingItem(
+            listing_id=listing.listing_id,
+            listing_mode=listing.listing_mode.name,
+            product_category=listing.product.category.name,
+            perishability_level=listing.product.perishability.name,
+            price=listing.price,
+            created_at=listing.created_at,
+            producer_id=listing.producer_id,
+            is_active=listing.is_active,
+            photo_url=listing.photo_url
+        )
+    except ListingNotFoundError:
+        raise HTTPException(status_code=404, detail="Listing not found in database")
+
+
+
