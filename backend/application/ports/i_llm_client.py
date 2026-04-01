@@ -1,4 +1,6 @@
 from typing import Protocol
 
 class ILLMClient(Protocol):
-    pass
+    
+    def generate(self, input: str) -> str: ...
+    
