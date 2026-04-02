@@ -34,3 +34,19 @@ class InvalidPhotoUrlError(Exception):
 class ListingNotFoundError(Exception):
         """Raise when listing is not present"""
         pass
+
+class InvalidTemperatureCelciusRange(Exception):
+        """Raise when invalid celcius temperature range"""
+        pass
+
+class InvalidHumidityRange(Exception):
+        """Raise when humidity range is invalid"""
+        pass
+
+class InvalidPrecipitationValue(Exception):
+        """Raise when precipitation value is less than zero"""
+        pass
+
+class InvalidLowTemperature(Exception):
+        """Raise when low temperature is greater than high temperature"""
+        pass
