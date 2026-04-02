@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from domain.data_precision import DataPrecision
 from typing import Optional
 from domain.exceptions import InvalidHumidityRange, InvalidTemperatureCelciusRange, InvalidPrecipitationValue, InvalidLowTemperature
+
 @dataclass(frozen=True)
 class WeatherContext:
     temperature: float
@@ -25,3 +26,4 @@ class WeatherContext:
             raise InvalidPrecipitationValue("Precipitation should be greater than zero")
         if self.low_temperature > self.high_temperature:
             raise InvalidLowTemperature("Low temperature should be lesser than high temperature")
+        
