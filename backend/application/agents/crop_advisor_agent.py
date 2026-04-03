@@ -4,6 +4,7 @@ from domain.regional_context import RegionalContext
 from uuid import UUID
 from application.ports.i_llm_client import ILLMClient
 from domain.weather_context import WeatherContext
+from application.prompt_injection_guard import sanitise
 
 class AgentState(TypedDict):
     farmer_question: str
@@ -16,6 +17,7 @@ class AgentState(TypedDict):
     weather_context: Optional[WeatherContext]
 
 def advise(agent_state: AgentState, llm_client: ILLMClient) -> AgentState:
+    sanitise(agent_state["farmer_question"])
     response = llm_client.generate(_build_prompt(agent_state))
     if response == "":
             return {**agent_state, "recommendation": "Unable to get recommendation right now, "
@@ -30,15 +32,14 @@ def _build_prompt(agent_state: AgentState) -> str:
     weather_context = agent_state["weather_context"]
 
     if weather_context is not None:
-        return (
-            f"You are a crop advisor. Farmer is growing {crop_type} in {province_state}. "
+        return [
+             {"role": "system", "content": f"You are a crop advisor. Farmer is growing {crop_type} in {province_state}. "
             f"Temperature: {weather_context.temperature}°C, Humidity: {weather_context.humidity}%. "
-            f"Data precision: {weather_context.precision_level.value}. "
-            f"Question: {farmer_question}"
-        )
-
-    return (
-        f"You are a crop advisor. Farmer is growing {crop_type} in {province_state}. "
-        f"Weather data is unavailable. "
-        f"Question: {farmer_question}"
-    )
+            f"Data precision: {weather_context.precision_level.value}. " },
+              { "role": "user",    "content": f"Question: {farmer_question}"}
+        ]
+    return [
+             {"role": "system", "content": f"You are a crop advisor. Farmer is growing {crop_type} in {province_state}."
+               f"Weather data is unavailable." },
+             {"role": "user", "content": f"Question: {farmer_question}"}
+        ]
