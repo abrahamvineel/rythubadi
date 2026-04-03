@@ -5,6 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "anthropic>=0.88.0",
+    "langgraph>=1.1.5",
     "psycopg2-binary>=2.9.11",
     "structlog>=25.5.0",
 ]
@@ -16,3 +18,4 @@ dev = [
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+addopts = "--ignore=backend/tests/infrastructure"

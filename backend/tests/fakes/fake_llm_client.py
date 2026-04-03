@@ -5,6 +5,6 @@ class FakeLLMClient:
         self.response = response
         self.input = ""
 
-    def generate(self, input: str) -> str:
-        self.input = input
+    def generate(self, messages: list) -> str:
+        self.input = messages
         return self.response
