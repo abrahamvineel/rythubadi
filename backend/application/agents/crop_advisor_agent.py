@@ -15,6 +15,10 @@ class AgentState(TypedDict):
     region: RegionalContext
     error_details: Optional[str]
     weather_context: Optional[WeatherContext]
+    confidence: Optional[float]
+    tools_called: list
+    soil_moisture: Optional[float]
+    data_disclaimer: Optional[str]
 
 def advise(agent_state: AgentState, llm_client: ILLMClient) -> AgentState:
     sanitise(agent_state["farmer_question"])
@@ -25,21 +29,29 @@ def advise(agent_state: AgentState, llm_client: ILLMClient) -> AgentState:
         "[general guidance]. You can also consult your local agricultural extension office", "error_details": "LLM response is empty"}
     return {**agent_state, "recommendation": response}
 
-def _build_prompt(agent_state: AgentState) -> str:
+def _build_prompt(agent_state: AgentState) -> list:
     crop_type = agent_state["crop_type"]
     province_state = agent_state["region"].province_state
     farmer_question = agent_state["farmer_question"]
     weather_context = agent_state["weather_context"]
+    soil_moisture = agent_state["soil_moisture"]
+
+    context_parts = [
+        f"You are a crop advisor.",
+        f"Farmer is growing {crop_type} in {province_state}."
+    ]
 
     if weather_context is not None:
-        return [
-             {"role": "system", "content": f"You are a crop advisor. Farmer is growing {crop_type} in {province_state}. "
-            f"Temperature: {weather_context.temperature}°C, Humidity: {weather_context.humidity}%. "
-            f"Data precision: {weather_context.precision_level.value}. " },
-              { "role": "user",    "content": f"Question: {farmer_question}"}
-        ]
+        context_parts.append(
+            f"Temperature: {weather_context.temperature}°C, "
+            f"Humidity: {weather_context.humidity}%."
+        )
+
+    if soil_moisture is not None:
+        context_parts.append(f"Soil moisture: {soil_moisture}%.")
+
     return [
-             {"role": "system", "content": f"You are a crop advisor. Farmer is growing {crop_type} in {province_state}."
-               f"Weather data is unavailable." },
-             {"role": "user", "content": f"Question: {farmer_question}"}
-        ]
+        {"role": "system", "content": " ".join(context_parts)},
+        {"role": "user", "content": f"Question: {farmer_question}"}
+    ]
+

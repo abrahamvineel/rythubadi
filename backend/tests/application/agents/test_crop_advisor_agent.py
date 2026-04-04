@@ -18,7 +18,10 @@ class TestCropAdvisorAgent:
                                  crop_type="paddy field", 
                                  region=RegionalContext("Andhra Pradesh"), 
                                  error_details=None,
-                                 weather_context=None)
+                                 weather_context=None,
+                                 tools_called=[],
+                                 soil_moisture=None,
+                                 data_disclaimer=None)
         llm_client = FakeLLMClient("Crop should be watered now.")               
         result = advise(agent_state, llm_client)
         assert result["recommendation"] == "Crop should be watered now."
@@ -31,7 +34,10 @@ class TestCropAdvisorAgent:
                                  crop_type="paddy field", 
                                  region=RegionalContext("Andhra Pradesh"), 
                                  error_details=None,
-                                 weather_context=None)
+                                 weather_context=None,
+                                 tools_called=[],
+                                 soil_moisture=None,
+                                 data_disclaimer=None)
         llm_client = FakeLLMClient("")               
         result = advise(agent_state, llm_client)
         assert result["recommendation"] == ("Unable to get recommendation right now, "
@@ -48,7 +54,10 @@ class TestCropAdvisorAgent:
                                  crop_type="paddy field", 
                                  region=RegionalContext("Andhra Pradesh"), 
                                  error_details=None, 
-                                 weather_context=weather_context)
+                                 weather_context=weather_context,
+                                 tools_called=[],
+                                 soil_moisture=None,
+                                 data_disclaimer=None)
         llm_client = FakeLLMClient("Crop should be watered now.")   
         result = advise(agent_state, llm_client)
 
@@ -66,7 +75,10 @@ class TestCropAdvisorAgent:
                                  crop_type="paddy field", 
                                  region=RegionalContext("Andhra Pradesh"), 
                                  error_details=None, 
-                                 weather_context=weather_context)
+                                 weather_context=weather_context,
+                                 tools_called=[],
+                                 soil_moisture=None,
+                                 data_disclaimer=None)
         llm_client = FakeLLMClient("Crop should be watered now.")   
         with pytest.raises(PromptInjectionDetectedError):
             advise(agent_state, llm_client)
