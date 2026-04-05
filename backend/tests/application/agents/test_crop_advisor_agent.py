@@ -19,6 +19,7 @@ class TestCropAdvisorAgent:
                                  region=RegionalContext("Andhra Pradesh"), 
                                  error_details=None,
                                  weather_context=None,
+                                 confidence=None,
                                  tools_called=[],
                                  soil_moisture=None,
                                  data_disclaimer=None)
@@ -35,6 +36,7 @@ class TestCropAdvisorAgent:
                                  region=RegionalContext("Andhra Pradesh"), 
                                  error_details=None,
                                  weather_context=None,
+                                 confidence=None,
                                  tools_called=[],
                                  soil_moisture=None,
                                  data_disclaimer=None)
@@ -55,6 +57,7 @@ class TestCropAdvisorAgent:
                                  region=RegionalContext("Andhra Pradesh"), 
                                  error_details=None, 
                                  weather_context=weather_context,
+                                 confidence=None,
                                  tools_called=[],
                                  soil_moisture=None,
                                  data_disclaimer=None)
@@ -76,6 +79,7 @@ class TestCropAdvisorAgent:
                                  region=RegionalContext("Andhra Pradesh"), 
                                  error_details=None, 
                                  weather_context=weather_context,
+                                 confidence=None,
                                  tools_called=[],
                                  soil_moisture=None,
                                  data_disclaimer=None)

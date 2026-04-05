@@ -8,11 +8,17 @@ from functools import lru_cache
 from dataclasses import dataclass
 from langfuse import Langfuse
 from infrastructure.llm.langfuse_claude_client import LangFuseClaudeClient
+from infrastructure.stubs.stub_soil_moisture_provider import StubSoilMoistureProvider
+from infrastructure.stubs.stub_weather_provider import StubWeatherProvider
+from application.agents.crop_advisor_graph import CropAdvisorGraph
+from langgraph.graph.state import CompiledStateGraph
+
 
 @dataclass
 class Services:
         market_listing: MarketListingService
         llm_client: ILLMClient
+        crop_advisor_graph: CompiledStateGraph
 
 @lru_cache
 def build_services():
@@ -26,4 +32,6 @@ def build_services():
         langfuse = Langfuse(public_key=os.environ["LANGFUSE_PUBLIC_KEY"], secret_key=os.environ["LANGFUSE_SECRET_KEY"])
         llm_client = LangFuseClaudeClient(llm_client=claude_client, langfuse=langfuse, agent_name="crop_advisor")
 
-        return Services(market_listing=market_listing, llm_client=llm_client)
+        crop_advisor_graph = CropAdvisorGraph(llm_client=llm_client, weather_provider=StubWeatherProvider(), soil_moisture_provider=StubSoilMoistureProvider())
+
+        return Services(market_listing=market_listing, llm_client=llm_client, crop_advisor_graph=crop_advisor_graph.build())
