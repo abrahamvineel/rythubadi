@@ -3,6 +3,7 @@ from langgraph.graph import StateGraph, END
 from application.ports.i_llm_client import ILLMClient
 from application.ports.i_weather_provider import IWeatherProvider
 from application.ports.i_soil_moisture_provider import ISoilMoistureProvider
+from application.localisation.disclaimers import get_disclaimer
 
 class CropAdvisorGraph:
 
@@ -16,7 +17,11 @@ class CropAdvisorGraph:
 
     def _advise_node(self, state: AgentState) -> AgentState:
         result = advise(state, self._llm_client)
-        return {**result, "confidence": 0.9}
+        weather_context = result["weather_context"]
+        data_disclaimer = "Data precision level unknown"
+        if weather_context:
+            data_disclaimer = get_disclaimer(weather_context.precision_level, result["language"])
+        return {**result, "confidence": 0.9, "data_disclaimer": data_disclaimer}
 
     def _route_node(self, state: AgentState) -> str:
         if state["confidence"] >= 0.7:

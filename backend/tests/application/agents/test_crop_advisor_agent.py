@@ -7,6 +7,7 @@ from domain.data_precision import DataPrecision
 import uuid
 import pytest
 from application.prompt_injection_guard import PromptInjectionDetectedError
+from domain.language import Language
 
 class TestCropAdvisorAgent:
 
@@ -22,7 +23,8 @@ class TestCropAdvisorAgent:
                                  confidence=None,
                                  tools_called=[],
                                  soil_moisture=None,
-                                 data_disclaimer=None)
+                                 data_disclaimer=None,
+                                 language=Language.EN)
         llm_client = FakeLLMClient("Crop should be watered now.")               
         result = advise(agent_state, llm_client)
         assert result["recommendation"] == "Crop should be watered now."
@@ -39,7 +41,8 @@ class TestCropAdvisorAgent:
                                  confidence=None,
                                  tools_called=[],
                                  soil_moisture=None,
-                                 data_disclaimer=None)
+                                 data_disclaimer=None,
+                                 language=Language.EN)
         llm_client = FakeLLMClient("")               
         result = advise(agent_state, llm_client)
         assert result["recommendation"] == ("Unable to get recommendation right now, "
@@ -60,7 +63,8 @@ class TestCropAdvisorAgent:
                                  confidence=None,
                                  tools_called=[],
                                  soil_moisture=None,
-                                 data_disclaimer=None)
+                                 data_disclaimer=None,
+                                 language=Language.EN)
         llm_client = FakeLLMClient("Crop should be watered now.")   
         result = advise(agent_state, llm_client)
 
@@ -82,7 +86,8 @@ class TestCropAdvisorAgent:
                                  confidence=None,
                                  tools_called=[],
                                  soil_moisture=None,
-                                 data_disclaimer=None)
+                                 data_disclaimer=None,
+                                 language=Language.EN)
         llm_client = FakeLLMClient("Crop should be watered now.")   
         with pytest.raises(PromptInjectionDetectedError):
             advise(agent_state, llm_client)

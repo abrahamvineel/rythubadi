@@ -5,6 +5,7 @@ from uuid import UUID
 from application.ports.i_llm_client import ILLMClient
 from domain.weather_context import WeatherContext
 from application.prompt_injection_guard import sanitise
+from domain.language import Language
 
 class AgentState(TypedDict):
     farmer_question: str
@@ -19,6 +20,7 @@ class AgentState(TypedDict):
     tools_called: list
     soil_moisture: Optional[float]
     data_disclaimer: Optional[str]
+    language: Language
 
 def advise(agent_state: AgentState, llm_client: ILLMClient) -> AgentState:
     sanitise(agent_state["farmer_question"])
@@ -35,9 +37,11 @@ def _build_prompt(agent_state: AgentState) -> list:
     farmer_question = agent_state["farmer_question"]
     weather_context = agent_state["weather_context"]
     soil_moisture = agent_state["soil_moisture"]
+    language = agent_state["language"].value
 
     context_parts = [
         f"You are a crop advisor.",
+        f"Respond in {language}",
         f"Farmer is growing {crop_type} in {province_state}."
     ]
 

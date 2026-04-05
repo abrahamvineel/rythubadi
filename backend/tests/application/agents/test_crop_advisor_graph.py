@@ -10,6 +10,7 @@ from domain.regional_context import RegionalContext
 import uuid
 import pytest
 from application.prompt_injection_guard import PromptInjectionDetectedError
+from domain.language import Language
 
 class TestCropAdvisorGraph:
 
@@ -25,7 +26,8 @@ class TestCropAdvisorGraph:
                                  confidence=None,
                                  tools_called=[],
                                  soil_moisture=None,
-                                 data_disclaimer=None)
+                                 data_disclaimer=None,
+                                 language=Language.EN)
         llm_client = FakeLLMClient("Crop should be watered now.")   
 
         weather_provider = FakeWeatherProvider(WeatherContext(23.0, 23.0, 18.0, None, None, 10.9, None, None, 78.3, DataPrecision.DISTRICT))
@@ -54,7 +56,8 @@ class TestCropAdvisorGraph:
                                  confidence=None,
                                  tools_called=[],
                                  soil_moisture=None,
-                                 data_disclaimer=None)
+                                 data_disclaimer=None,
+                                 language=Language.EN)
          llm_client = FakeLLMClient("Crop should be watered now.")
          weather_provider = FakeWeatherProvider(WeatherContext(23.0, 23.0, 18.0, None, None, 10.9, None, None, 78.3, DataPrecision.DISTRICT))
          soil_provider = FakeSoilMoistureProvider(45.0)

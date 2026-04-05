@@ -29,4 +29,5 @@ def _build_agent_state(request: ChatRequest) -> AgentState:
                       confidence=None,
                       tools_called=[],
                       soil_moisture=None,
-                      data_disclaimer=None)
+                      data_disclaimer=None,
+                      language=request.language)
