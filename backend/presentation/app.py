@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from presentation.routes.health import router as health_router
 from presentation.routes.market_listing import router as listing_router
+from presentation.routes.chat import router as chat_router
 import os
 import uuid
 DEBUG = os.getenv("DEBUG", "false")
@@ -20,3 +21,4 @@ async def add_security_headers(request, call_next):
 
 app.include_router(health_router)
 app.include_router(listing_router)
+app.include_router(chat_router)
