@@ -50,3 +50,15 @@ class InvalidPrecipitationValue(Exception):
 class InvalidLowTemperature(Exception):
         """Raise when low temperature is greater than high temperature"""
         pass
+
+class InvalidSimilarityScoreRangeError(Exception):
+        """Raise when similarity score range is invalid"""
+        pass
+
+class EmptyContentError(Exception):
+        """Raise when content is empty"""
+        pass
+
+class EmptyCountryError(Exception):
+        """Raise when country is empty"""
+        pass
