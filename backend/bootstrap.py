@@ -10,7 +10,11 @@ from langfuse import Langfuse
 from infrastructure.llm.langfuse_claude_client import LangFuseClaudeClient
 from infrastructure.stubs.stub_soil_moisture_provider import StubSoilMoistureProvider
 from infrastructure.stubs.stub_weather_provider import StubWeatherProvider
+from infrastructure.stubs.stub_image_analyser import StubImageAnalyser
+from infrastructure.stubs.stub_disease_corpus import StubDiseaseCorpus
+from infrastructure.stubs.in_memory_confirmation_repository import InMemoryConfirmationRepository
 from application.agents.crop_advisor_graph import CropAdvisorGraph
+from application.agents.crop_diagnosis_graph import CropDiagnosisGraph
 from langgraph.graph.state import CompiledStateGraph
 
 
@@ -19,6 +23,7 @@ class Services:
         market_listing: MarketListingService
         llm_client: ILLMClient
         crop_advisor_graph: CompiledStateGraph
+        crop_diagnosis_graph: CompiledStateGraph
 
 @lru_cache
 def build_services():
@@ -33,5 +38,7 @@ def build_services():
         llm_client = LangFuseClaudeClient(llm_client=claude_client, langfuse=langfuse, agent_name="crop_advisor")
 
         crop_advisor_graph = CropAdvisorGraph(llm_client=llm_client, weather_provider=StubWeatherProvider(), soil_moisture_provider=StubSoilMoistureProvider())
+        
+        crop_diagnosis_graph = CropDiagnosisGraph(llm_client=llm_client, weather_provider=StubWeatherProvider(), image_analyzer=StubImageAnalyser(), disease_corpus=StubDiseaseCorpus(), confirmation_repo=InMemoryConfirmationRepository())
 
-        return Services(market_listing=market_listing, llm_client=llm_client, crop_advisor_graph=crop_advisor_graph.build())
+        return Services(market_listing=market_listing, llm_client=llm_client, crop_advisor_graph=crop_advisor_graph.build(), crop_diagnosis_graph=crop_diagnosis_graph.build())

@@ -12,9 +12,7 @@ router = APIRouter()
 def chat(request: ChatRequest, 
          token: str = Depends(verify_clerk_jwt)):
     agent_state = _build_agent_state(request)
-    
     result = build_services().crop_advisor_graph.invoke(agent_state)
-
     return ChatResponse(recommendation=result["recommendation"], data_disclaimer=result["data_disclaimer"], routed_to_agronomist=(result["confidence"] or 0)< 0.7)
 
 def _build_agent_state(request: ChatRequest) -> AgentState:
