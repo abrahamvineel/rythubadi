@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from presentation.routes.health import router as health_router
 from presentation.routes.market_listing import router as listing_router
 from presentation.routes.chat import router as chat_router
-from presentation.routes.diagnose import diagnose_router
+from presentation.routes.diagnose import router as diagnose_router
+from presentation.routes.scheme import router as scheme_router
 import os
 import uuid
 DEBUG = os.getenv("DEBUG", "false")
@@ -24,3 +25,4 @@ app.include_router(health_router)
 app.include_router(listing_router)
 app.include_router(chat_router)
 app.include_router(diagnose_router)
+app.include_router(scheme_router)

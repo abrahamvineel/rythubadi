@@ -5,7 +5,6 @@ from presentation.dependencies.auth import verify_clerk_jwt
 from application.agents.crop_diagnosis_state import CropDiagnosisState
 from domain.regional_context import RegionalContext
 from bootstrap import build_services
-import uuid
 
 router = APIRouter()
 

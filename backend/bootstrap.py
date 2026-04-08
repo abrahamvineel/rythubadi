@@ -13,8 +13,11 @@ from infrastructure.stubs.stub_weather_provider import StubWeatherProvider
 from infrastructure.stubs.stub_image_analyser import StubImageAnalyser
 from infrastructure.stubs.stub_disease_corpus import StubDiseaseCorpus
 from infrastructure.stubs.in_memory_confirmation_repository import InMemoryConfirmationRepository
+from infrastructure.stubs.stub_producer_repository import StubProducerRepository
+from infrastructure.stubs.stub_scheme_repository import StubSchemeRepository
 from application.agents.crop_advisor_graph import CropAdvisorGraph
 from application.agents.crop_diagnosis_graph import CropDiagnosisGraph
+from application.agents.scheme_advisor_graph import SchemeAdvisorGraph
 from langgraph.graph.state import CompiledStateGraph
 
 
@@ -24,6 +27,7 @@ class Services:
         llm_client: ILLMClient
         crop_advisor_graph: CompiledStateGraph
         crop_diagnosis_graph: CompiledStateGraph
+        scheme_advisor_graph: CompiledStateGraph
 
 @lru_cache
 def build_services():
@@ -41,4 +45,10 @@ def build_services():
         
         crop_diagnosis_graph = CropDiagnosisGraph(llm_client=llm_client, weather_provider=StubWeatherProvider(), image_analyzer=StubImageAnalyser(), disease_corpus=StubDiseaseCorpus(), confirmation_repo=InMemoryConfirmationRepository())
 
-        return Services(market_listing=market_listing, llm_client=llm_client, crop_advisor_graph=crop_advisor_graph.build(), crop_diagnosis_graph=crop_diagnosis_graph.build())
+        scheme_advisor_graph = SchemeAdvisorGraph(llm_client=llm_client, producer_repo=StubProducerRepository(), scheme_repo=StubSchemeRepository())
+
+        return Services(market_listing=market_listing, 
+                        llm_client=llm_client,
+                        crop_advisor_graph=crop_advisor_graph.build(), 
+                        crop_diagnosis_graph=crop_diagnosis_graph.build(), 
+                        scheme_advisor_graph=scheme_advisor_graph.build())
