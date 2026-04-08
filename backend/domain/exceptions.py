@@ -62,3 +62,11 @@ class EmptyContentError(Exception):
 class EmptyCountryError(Exception):
         """Raise when country is empty"""
         pass
+
+class InvalidConfidenceRangeError(Exception):
+        """Raise when confidence range is invalid"""
+        pass
+
+class EmptyReasonError(Exception):
+        """Raise when reason is missing"""
+        pass
