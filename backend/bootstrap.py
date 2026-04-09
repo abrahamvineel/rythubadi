@@ -18,6 +18,7 @@ from infrastructure.stubs.stub_scheme_repository import StubSchemeRepository
 from application.agents.crop_advisor_graph import CropAdvisorGraph
 from application.agents.crop_diagnosis_graph import CropDiagnosisGraph
 from application.agents.scheme_advisor_graph import SchemeAdvisorGraph
+from application.agents.orchestrator_graph import OrchestratorGraph
 from langgraph.graph.state import CompiledStateGraph
 
 
@@ -28,6 +29,7 @@ class Services:
         crop_advisor_graph: CompiledStateGraph
         crop_diagnosis_graph: CompiledStateGraph
         scheme_advisor_graph: CompiledStateGraph
+        orchestrator_graph: CompiledStateGraph
 
 @lru_cache
 def build_services():
@@ -47,8 +49,16 @@ def build_services():
 
         scheme_advisor_graph = SchemeAdvisorGraph(llm_client=llm_client, producer_repo=StubProducerRepository(), scheme_repo=StubSchemeRepository())
 
+        orchestrator_graph = OrchestratorGraph(
+                llm_client=llm_client,
+                crop_advisor=crop_advisor_graph,
+                crop_diagnosis=crop_diagnosis_graph,
+                scheme_advisor=scheme_advisor_graph
+        )
+
         return Services(market_listing=market_listing, 
                         llm_client=llm_client,
                         crop_advisor_graph=crop_advisor_graph.build(), 
                         crop_diagnosis_graph=crop_diagnosis_graph.build(), 
-                        scheme_advisor_graph=scheme_advisor_graph.build())
+                        scheme_advisor_graph=scheme_advisor_graph.build(),
+                        orchestrator_graph=orchestrator_graph.build())
