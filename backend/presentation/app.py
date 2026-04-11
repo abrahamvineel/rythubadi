@@ -4,6 +4,7 @@ from presentation.routes.market_listing import router as listing_router
 from presentation.routes.chat import router as chat_router
 from presentation.routes.diagnose import router as diagnose_router
 from presentation.routes.scheme import router as scheme_router
+from presentation.routes.voice import router as voice_router
 import os
 import uuid
 DEBUG = os.getenv("DEBUG", "false")
@@ -26,3 +27,4 @@ app.include_router(listing_router)
 app.include_router(chat_router)
 app.include_router(diagnose_router)
 app.include_router(scheme_router)
+app.include_router(voice_router)

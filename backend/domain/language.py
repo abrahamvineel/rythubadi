@@ -1,8 +1,8 @@
 from enum import Enum
 
-class Language(Enum):
-    EN = "English"
-    FR = "French"
-    HI = "Hindi"
-    TE = "Telugu"
+class Language(str, Enum):
+    EN = "EN"
+    FR = "FR"
+    HI = "HI"
+    TE = "TE"
     
