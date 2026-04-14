@@ -10,6 +10,7 @@ export type Chat = {
 export function useChats() {
     const [chats, setChats] = useState<Chat[]>([])
     const [activeChatId, setActiveChatId] = useState<string | null>(null)
+    const [isLoading, setIsLoading] = useState(false)
 
     function createChat(): string {
         const id = Date.now().toString()
@@ -27,8 +28,14 @@ export function useChats() {
         ))
     }
 
+    function deleteChat(chatId: string) {
+        setChats(prev => prev.filter(c => c.id !== chatId))
+        if (activeChatId === chatId) setActiveChatId(null)
+    }
+
     async function sendMessageToActiveChat(text: string): Promise<void> {
         if (!activeChatId) return
+        setIsLoading(true)
         const userMsg: Message = { role: "user", text }
         addMessage(activeChatId, userMsg)
 
@@ -44,6 +51,7 @@ export function useChats() {
         const data = await res.json()
         const assistantMsg: Message = { role: "assistant", text: data.specialist_response }
         addMessage(activeChatId, assistantMsg)
+        setIsLoading(false)
     }
-    return { chats, activeChatId, createChat, setActiveChatId, sendMessageToActiveChat }
+    return { chats, activeChatId, createChat, setActiveChatId, sendMessageToActiveChat, isLoading, deleteChat }
 }

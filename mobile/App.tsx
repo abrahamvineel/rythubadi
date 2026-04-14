@@ -8,16 +8,24 @@ import {
     Pressable,
     KeyboardAvoidingView,
     Platform,
+    TouchableOpacity,
 } from "react-native"
-import { useChat, Message } from "./src/hooks/useChat"
+import { useChats } from "./src/hooks/useChats"
+import { Message } from "./src/hooks/useChat"
 import { useVoice } from "./src/hooks/useVoice"
 import { VoiceButton } from "./src/components/VoiceButton"
+import { Sidebar } from "./src/components/SideBar"
 
 export default function App() {
-    const { messages, isLoading, sendMessage } = useChat()
-    const { isRecording, startRecording, stopRecording } = useVoice(sendMessage)
+    const { chats, activeChatId, createChat, setActiveChatId, sendMessageToActiveChat, isLoading, deleteChat } = useChats()
+    const [sidebarOpen, setSidebarOpen] = useState(true)
     const [text, setText] = useState("")
     const scrollRef = useRef<ScrollView>(null)
+
+    const activeChat = chats.find(c => c.id === activeChatId) ?? null
+    const messages = activeChat?.messages ?? []
+    const { isRecording, startRecording, stopRecording } = useVoice(sendMessageToActiveChat)
+
 
     useEffect(() => {
         scrollRef.current?.scrollToEnd({ animated: true })
@@ -25,7 +33,7 @@ export default function App() {
 
     function handleSend() {
         if (!text.trim()) return
-        sendMessage(text)
+        sendMessageToActiveChat(text)
         setText("")
     }
 
@@ -36,14 +44,30 @@ export default function App() {
         >
             {/* Header */}
             <View style={styles.header}>
-                <Text style={styles.headerEmoji}>🌾</Text>
-                <View>
-                    <Text style={styles.headerTitle}>Rythu Voice</Text>
-                    <Text style={styles.headerSubtitle}>Your AI farming advisor</Text>
-                </View>
+                    <TouchableOpacity onPress={() => setSidebarOpen(o => !o)} style={{ marginRight: 12 }}>
+                        <Text style={{ color: "#fff", fontSize: 20 }}>☰</Text>
+                    </TouchableOpacity>
+                    <Text style={styles.headerEmoji}>🌾</Text>
+                    <View>
+                        <Text style={styles.headerTitle}>Rythu Voice</Text>
+                        <Text style={styles.headerSubtitle}>Your AI farming advisor</Text>
+                    </View>
             </View>
 
-            {/* Chat area */}
+            {/* Body: sidebar + chat */}
+            <View style={{ flex: 1, flexDirection: "row" }}>
+                {sidebarOpen && (
+                    <Sidebar
+                        chats={chats}
+                        activeChatId={activeChatId}
+                        onSelectChat={setActiveChatId}
+                        onNewChat={createChat}
+                        onDeleteChat={deleteChat}
+                    />
+                )}
+
+                {/* Chat area + input bar */}
+                <View style={{ flex: 1 }}>
             <ScrollView
                 ref={scrollRef}
                 style={styles.chatArea}
@@ -108,6 +132,8 @@ export default function App() {
                     onStart={startRecording}
                     onStop={stopRecording}
                 />
+            </View>
+            </View>
             </View>
         </KeyboardAvoidingView>
     )
