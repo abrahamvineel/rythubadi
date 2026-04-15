@@ -33,7 +33,7 @@ export function useChats() {
         if (activeChatId === chatId) setActiveChatId(null)
     }
 
-    async function sendMessageToActiveChat(text: string): Promise<void> {
+    async function sendMessageToActiveChat(text: string, imageUrl?: string): Promise<void> {
         if (!activeChatId) return
         setIsLoading(true)
         const userMsg: Message = { role: "user", text }
@@ -45,7 +45,7 @@ export function useChats() {
             body: JSON.stringify({
                 message: text,
                 producer_id: "test-farmer-1",
-                image_url: null,
+                image_url: imageUrl ?? null,
             }),
         })
         const data = await res.json()
