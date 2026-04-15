@@ -7,6 +7,7 @@ from presentation.routes.diagnose import router as diagnose_router
 from presentation.routes.scheme import router as scheme_router
 from presentation.routes.voice import router as voice_router
 from presentation.routes.upload import router as upload_router
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import uuid
 DEBUG = os.getenv("DEBUG", "false")
@@ -15,6 +16,13 @@ docs = "/docs" if DEBUG == "true" else None
 redoc = "/redoc" if DEBUG == "true" else None
 
 app = FastAPI(docs_url=docs, redoc_url=redoc)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8081"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 @app.middleware("http")
 async def add_security_headers(request, call_next):
     response = await call_next(request)
