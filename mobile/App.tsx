@@ -9,12 +9,14 @@ import {
     KeyboardAvoidingView,
     Platform,
     TouchableOpacity,
+    Image,
 } from "react-native"
 import { useChats } from "./src/hooks/useChats"
 import { Message } from "./src/hooks/useChat"
 import { useVoice } from "./src/hooks/useVoice"
 import { VoiceButton } from "./src/components/VoiceButton"
 import { Sidebar } from "./src/components/SideBar"
+import { useImagePicker } from "./src/hooks/useImagePicker"
 
 export default function App() {
     const { chats, activeChatId, createChat, setActiveChatId, sendMessageToActiveChat, isLoading, deleteChat } = useChats()
@@ -25,16 +27,18 @@ export default function App() {
     const activeChat = chats.find(c => c.id === activeChatId) ?? null
     const messages = activeChat?.messages ?? []
     const { isRecording, startRecording, stopRecording } = useVoice(sendMessageToActiveChat)
-
+    const { imageUri, pickImage, uploadImage, clearImage } = useImagePicker()
 
     useEffect(() => {
         scrollRef.current?.scrollToEnd({ animated: true })
     }, [messages, isLoading])
 
-    function handleSend() {
-        if (!text.trim()) return
-        sendMessageToActiveChat(text)
+    async function handleSend() {
+        if (!text.trim() && !imageUri) return
+        const uploadedUrl = await uploadImage()
+        await sendMessageToActiveChat(text, uploadedUrl ?? undefined)
         setText("")
+        clearImage()
     }
 
     return (
@@ -110,8 +114,23 @@ export default function App() {
                 )}
             </ScrollView>
 
+            {imageUri && (
+                <View style={{ paddingHorizontal: 12, paddingTop: 8 }}>
+                    <Image source={{ uri: imageUri }} style={{ width: 60, height: 60, borderRadius: 8 }} />
+                    <TouchableOpacity onPress={clearImage} style={{ position: "absolute", top: 4, right: 4 }}>
+                        <Text style={{ color: "#fff", backgroundColor: "#F44336", borderRadius: 10, paddingHorizontal: 5 }}>✕</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+
+
             {/* Input bar */}
             <View style={styles.inputBar}>
+                
+                <TouchableOpacity onPress={pickImage} style={{ padding: 8 }}>
+                    <Text style={{ fontSize: 22 }}>📷</Text>
+                </TouchableOpacity>
+
                 <TextInput
                     style={styles.input}
                     value={text}
