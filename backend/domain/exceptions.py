@@ -70,3 +70,7 @@ class InvalidConfidenceRangeError(Exception):
 class EmptyReasonError(Exception):
         """Raise when reason is missing"""
         pass
+
+class NoContactMethodError(Exception):
+        """Raise when no contact method"""
+        pass
