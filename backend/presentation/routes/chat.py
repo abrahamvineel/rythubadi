@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from presentation.schemas.chat_request import ChatRequest
 from presentation.schemas.chat_response import ChatResponse
-from presentation.dependencies.auth import verify_clerk_jwt
+from presentation.dependencies.auth import get_current_user_id
 from application.agents.orchestrator_state import OrchestratorState
 from bootstrap import build_services
 from domain.regional_context import RegionalContext
@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.post("/chat", status_code=200)
 def chat(request: ChatRequest, 
-         token: str = Depends(verify_clerk_jwt)):
+         user_id: str = Depends(get_current_user_id)):
     agent_state = _build_agent_state(request)
     result = build_services().orchestrator_graph.invoke(agent_state)
     return ChatResponse(specialist_response=result["specialist_response"], routed_to=result["routed_to"])

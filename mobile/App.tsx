@@ -68,10 +68,6 @@ export default function App() {
                         <Text style={styles.headerTitle}>Rythu Voice</Text>
                         <Text style={styles.headerSubtitle}>Your AI farming advisor</Text>
                     </View>
-                    {name && <Text style={{ color: "#fff", fontSize: 13, marginRight: 12 }}>{name}</Text>}
-                    <TouchableOpacity onPress={logout}>
-                        <Text style={{ color: "#fff", fontSize: 13 }}>Logout</Text>
-                    </TouchableOpacity>
             </View>
 
             {/* Body: sidebar + chat */}
@@ -83,6 +79,8 @@ export default function App() {
                         onSelectChat={setActiveChatId}
                         onNewChat={createChat}
                         onDeleteChat={deleteChat}
+                        name={name}
+                        onLogout={logout}
                     />
                 )}
 

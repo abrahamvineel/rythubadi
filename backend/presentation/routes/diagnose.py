@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from presentation.schemas.diagnose_request import DiagnoseRequest
 from presentation.schemas.diagnose_response import DiagnoseResponse
-from presentation.dependencies.auth import verify_clerk_jwt
+from presentation.dependencies.auth import get_current_user_id
 from application.agents.crop_diagnosis_state import CropDiagnosisState
 from domain.regional_context import RegionalContext
 from bootstrap import build_services
@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.post("/diagnose", status_code=200)
 def diagnose_router(request: DiagnoseRequest,
-                    token = Depends(verify_clerk_jwt)):
+                    user_id: str = Depends(get_current_user_id)):
     crop_diagnosis_agent = _build_crop_diagnosis_agent(request)
     result = build_services().crop_diagnosis_graph.invoke(crop_diagnosis_agent)
     return DiagnoseResponse(llm_diagnosis=result["llm_diagnosis"], confirmation_id=result["confirmation_id"])
