@@ -1,5 +1,6 @@
 from application.services.market_listing_service import MarketListingService
 from infrastructure.postgres_market_listing_repository import PostgresMarketListingRepository
+from infrastructure.postgres_user_repository import PostgresUserRepository
 from psycopg2.pool import ThreadedConnectionPool
 from infrastructure.llm.claude_client import ClaudeClient
 from application.ports.i_llm_client import ILLMClient
@@ -30,6 +31,8 @@ class Services:
         crop_diagnosis_graph: CompiledStateGraph
         scheme_advisor_graph: CompiledStateGraph
         orchestrator_graph: CompiledStateGraph
+        postgres_user_repo: PostgresUserRepository
+
 
 @lru_cache
 def build_services():
@@ -56,9 +59,12 @@ def build_services():
                 scheme_advisor=scheme_advisor_graph
         )
 
+        postgres_user_repo = PostgresUserRepository(pool)
+
         return Services(market_listing=market_listing, 
                         llm_client=llm_client,
                         crop_advisor_graph=crop_advisor_graph.build(), 
                         crop_diagnosis_graph=crop_diagnosis_graph.build(), 
                         scheme_advisor_graph=scheme_advisor_graph.build(),
-                        orchestrator_graph=orchestrator_graph.build())
+                        orchestrator_graph=orchestrator_graph.build(),
+                        postgres_user_repo=postgres_user_repo)

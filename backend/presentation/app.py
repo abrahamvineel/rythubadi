@@ -7,6 +7,7 @@ from presentation.routes.diagnose import router as diagnose_router
 from presentation.routes.scheme import router as scheme_router
 from presentation.routes.voice import router as voice_router
 from presentation.routes.upload import router as upload_router
+from presentation.routes.auth import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import uuid
@@ -39,4 +40,5 @@ app.include_router(diagnose_router)
 app.include_router(scheme_router)
 app.include_router(voice_router)
 app.include_router(upload_router)
+app.include_router(auth_router)
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")

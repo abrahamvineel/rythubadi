@@ -11,7 +11,6 @@ class User:
     phone_number: Optional[str]
     name: str
     password_hash: str
-    created_at: datetime
 
     def __post_init__(self):
         if self.email is None and self.phone_number is None:
