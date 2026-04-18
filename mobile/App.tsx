@@ -1,4 +1,7 @@
 import React, { useState, useRef, useEffect } from "react"
+import { useAuth } from "./src/hooks/useAuth"
+import { LoginScreen } from "./src/screens/LoginScreen"
+import { RegisterScreen } from "./src/screens/RegisterScreen"
 import {
     StyleSheet,
     Text,
@@ -19,11 +22,12 @@ import { Sidebar } from "./src/components/SideBar"
 import { useImagePicker } from "./src/hooks/useImagePicker"
 
 export default function App() {
+    const { token, name, loading: authLoading, error: authError, login, register, logout } = useAuth()
+    const [authScreen, setAuthScreen] = useState<"login" | "register">("login")
     const { chats, activeChatId, createChat, setActiveChatId, sendMessageToActiveChat, isLoading, deleteChat } = useChats()
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const [text, setText] = useState("")
     const scrollRef = useRef<ScrollView>(null)
-
     const activeChat = chats.find(c => c.id === activeChatId) ?? null
     const messages = activeChat?.messages ?? []
     const { isRecording, startRecording, stopRecording } = useVoice(sendMessageToActiveChat)
@@ -32,6 +36,14 @@ export default function App() {
     useEffect(() => {
         scrollRef.current?.scrollToEnd({ animated: true })
     }, [messages, isLoading])
+
+    if (authLoading) return null
+
+    if (!token) {
+        if (authScreen === "register")
+            return <RegisterScreen onRegister={register} onGoToLogin={() => setAuthScreen("login")} error={authError} />
+        return <LoginScreen onLogin={login} onGoToRegister={() => setAuthScreen("register")} error={authError} />
+    }
 
     async function handleSend() {
         if (!text.trim() && !imageUri) return
@@ -52,10 +64,14 @@ export default function App() {
                         <Text style={{ color: "#fff", fontSize: 20 }}>☰</Text>
                     </TouchableOpacity>
                     <Text style={styles.headerEmoji}>🌾</Text>
-                    <View>
+                    <View style={{ flex: 1 }}>
                         <Text style={styles.headerTitle}>Rythu Voice</Text>
                         <Text style={styles.headerSubtitle}>Your AI farming advisor</Text>
                     </View>
+                    {name && <Text style={{ color: "#fff", fontSize: 13, marginRight: 12 }}>{name}</Text>}
+                    <TouchableOpacity onPress={logout}>
+                        <Text style={{ color: "#fff", fontSize: 13 }}>Logout</Text>
+                    </TouchableOpacity>
             </View>
 
             {/* Body: sidebar + chat */}

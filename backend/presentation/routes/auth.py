@@ -27,11 +27,9 @@ def register(request: RegisterRequest):
                 hash_password.decode())
     repo.save(user=user)
 
-    token = jwt.encode({"user_id": str(user.id), 
-                        "exp": datetime.utcnow() + timedelta(hours=24)}, 
-                        JWT_SECRET, 
-                        algorithm="HS256")
-    
+    token = jwt.encode({"user_id": str(user.id), "name": user.name,
+                        "exp": datetime.utcnow() + timedelta(hours=24)},
+                        JWT_SECRET, algorithm="HS256")
     return {"access_token": token, "token_type": "bearer"}
 
 
@@ -45,9 +43,7 @@ def login(request: LoginRequest):
     if not bcrypt.checkpw(request.password.encode(), user.password_hash.encode()):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token = jwt.encode({"user_id": str(user.id), 
-                        "exp": datetime.utcnow() + timedelta(hours=24)}, 
-                        JWT_SECRET, 
-                        algorithm="HS256")
-    
+    token = jwt.encode({"user_id": str(user.id), "name": user.name,
+                        "exp": datetime.utcnow() + timedelta(hours=24)},
+                        JWT_SECRET, algorithm="HS256")
     return {"access_token": token, "token_type": "bearer"}    

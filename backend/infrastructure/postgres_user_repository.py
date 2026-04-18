@@ -16,14 +16,15 @@ class PostgresUserRepository:
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("INSERT INTO users"
-                " (id, email, phone_number, name, password_hash, created_at) " \
-                "VALUES (%s, %s, %s, %s, %s, %s)",
-                (user.id, user.email, user.phone_number, user.name, user.password_hash, user.created_at))
+                " (id, email, phone_number, name, password_hash) " \
+                "VALUES (%s, %s, %s, %s, %s)",
+                (str(user.id), user.email, user.phone_number, user.name, user.password_hash))
             conn.commit()
             logger.info("User created", user_id=str(user.id))
         except Exception:
             logger.exception("User creation failed", user_id=str(user.id))
             conn.rollback()
+            raise
         finally:
             self.pool.putconn(conn)
 
@@ -31,12 +32,12 @@ class PostgresUserRepository:
         conn = self.pool.getconn()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("SELECT id, email, phone_number, name, password_hash, created_at FROM users WHERE email = %s", (email,))
+                cur.execute("SELECT id, email, phone_number, name, password_hash FROM users WHERE email = %s", (email,))
                 res = cur.fetchone()
                 if res is None:
                     return None
                 return User(id=res["id"], email=res["email"], phone_number=res["phone_number"],
-                            name=res["name"], password_hash=res["password_hash"], created_at=res["created_at"])
+                            name=res["name"], password_hash=res["password_hash"])
         except Exception:
             logger.exception("find_by_email failed", email=str(email))
         finally:
@@ -46,12 +47,12 @@ class PostgresUserRepository:
         conn = self.pool.getconn()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("SELECT id, email, phone_number, name, password_hash, created_at FROM users WHERE phone_number = %s", (phone,))
+                cur.execute("SELECT id, email, phone_number, name, password_hash FROM users WHERE phone_number = %s", (phone,))
                 res = cur.fetchone()
                 if res is None:
                     return None
                 return User(id=res["id"], email=res["email"], phone_number=res["phone_number"],
-                            name=res["name"], password_hash=res["password_hash"], created_at=res["created_at"])
+                            name=res["name"], password_hash=res["password_hash"])
         except Exception:
             logger.exception("find_by_phone_number failed", phone=str(phone))
         finally:

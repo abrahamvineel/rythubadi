@@ -1,6 +1,6 @@
 
 CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID PRIMARY KEY,
     email TEXT UNIQUE,
     phone_number TEXT UNIQUE,
     CHECK (email IS NOT NULL OR phone_number IS NOT NULL),
