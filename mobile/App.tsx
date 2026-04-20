@@ -47,10 +47,11 @@ export default function App() {
 
     async function handleSend() {
         if (!text.trim() && !imageUri) return
-        const uploadedUrl = await uploadImage()
-        await sendMessageToActiveChat(text, uploadedUrl ?? undefined)
+        const message = text
         setText("")
         clearImage()
+        const uploadedUrl = await uploadImage()
+        await sendMessageToActiveChat(message, uploadedUrl ?? undefined)
     }
 
     return (

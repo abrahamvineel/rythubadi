@@ -11,12 +11,13 @@ class LangFuseClaudeClient:
         self._agent_name = agent_name
     
     def generate(self, messages: list) -> str:
-        start_time = time.time()
-        sha256_of_messages = self._hash(messages)
-        generation = self._langfuse.generation(name=self._agent_name, input=sha256_of_messages, model="claude-haiku-4-5-20251001")
+        # TODO: Langfuse 4.x removed langfuse.generation() — fix with @observe decorator
+        # start_time = time.time()
+        # sha256_of_messages = self._hash(messages)
+        # generation = self._langfuse.generation(name=self._agent_name, input=sha256_of_messages, model="claude-haiku-4-5-20251001")
         result = self._llm_client.generate(messages)
-        end_time = time.time()
-        generation.end(output=self._hash(result), latency=end_time-start_time)
+        # end_time = time.time()
+        # generation.end(output=self._hash(result), latency=end_time-start_time)
         return result
     
     def _hash(self, response: str):

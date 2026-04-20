@@ -5,6 +5,7 @@ const API_BASE = "http://localhost:8000";
 export type Message = {
     role: "user" | "assistant"
     text: string
+    timestamp: string
 }
 
 export function useChat() {
@@ -12,7 +13,7 @@ export function useChat() {
     const [isLoading, setIsLoading] = useState(false)
 
     async function sendMessage(text: string, imageUrl?: string): Promise<void> {
-        const userMessage: Message = { role: "user", text }
+        const userMessage: Message = { role: "user", text, timestamp: new Date().toISOString() }
         setMessages(prev => [...prev, userMessage])
         setIsLoading(true)
 
@@ -27,7 +28,7 @@ export function useChat() {
         })
 
         const data = await res.json()
-        const assistantMessage: Message = { role: "assistant", text: data.specialist_response }
+        const assistantMessage: Message = { role: "assistant", text: data.specialist_response, timestamp: new Date().toISOString() }
         setMessages(prev => [...prev, assistantMessage])
         setIsLoading(false)
     }

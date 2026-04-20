@@ -1,0 +1,16 @@
+from typing import Protocol
+from domain.chat_message import ChatMessage
+from domain.chat_session import ChatSession
+from uuid import UUID
+
+class IConversationRepository(Protocol):
+
+    def create(self, session: ChatSession) -> None: ...
+
+    def find_all_by_user(self, user_id: str) -> list[ChatSession]: ...
+
+    def delete(self, session_id: UUID, user_id: str) -> None: ...
+
+    def save_message(self, message: ChatMessage) -> None: ...
+
+    def find_messages_by_session(self, session_id: UUID) -> list[ChatMessage]: ...
