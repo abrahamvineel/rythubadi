@@ -20,11 +20,12 @@ import { useVoice } from "./src/hooks/useVoice"
 import { VoiceButton } from "./src/components/VoiceButton"
 import { Sidebar } from "./src/components/SideBar"
 import { useImagePicker } from "./src/hooks/useImagePicker"
+import Markdown from "react-native-markdown-display"
 
 export default function App() {
-    const { token, name, loading: authLoading, error: authError, login, register, logout } = useAuth()
+    const { token, name, language, provinceState, country, loading: authLoading, error: authError, login, register, logout } = useAuth()
     const [authScreen, setAuthScreen] = useState<"login" | "register">("login")
-    const { chats, activeChatId, createChat, setActiveChatId, sendMessageToActiveChat, isLoading, deleteChat } = useChats()
+    const { chats, activeChatId, createChat, setActiveChatId, sendMessageToActiveChat, isLoading, deleteChat } = useChats({ language, provinceState, country })
     const [sidebarOpen, setSidebarOpen] = useState(true)
     const [text, setText] = useState("")
     const scrollRef = useRef<ScrollView>(null)
@@ -81,6 +82,8 @@ export default function App() {
                         onNewChat={createChat}
                         onDeleteChat={deleteChat}
                         name={name}
+                        language={language}
+                        provinceState={provinceState}
                         onLogout={logout}
                     />
                 )}
@@ -112,9 +115,11 @@ export default function App() {
                             <Text style={styles.avatar}>🌾</Text>
                         )}
                         <View style={msg.role === "user" ? styles.userBubble : styles.assistantBubble}>
-                            <Text style={msg.role === "user" ? styles.userText : styles.assistantText}>
-                                {msg.text}
-                            </Text>
+                            {msg.role === "user" ? (
+                                <Text style={styles.userText}>{msg.text}</Text>
+                            ) : (
+                                <Markdown style={markdownStyles}>{msg.text}</Markdown>
+                            )}
                         </View>
                     </View>
                 ))}
@@ -171,6 +176,23 @@ export default function App() {
             </View>
         </KeyboardAvoidingView>
     )
+}
+
+const markdownStyles = {
+    body: { color: "#1A3A1A", fontSize: 15, lineHeight: 22 },
+    heading1: { fontSize: 18, fontWeight: "700" as const, color: "#1B5E20", marginTop: 12, marginBottom: 4 },
+    heading2: { fontSize: 16, fontWeight: "700" as const, color: "#2E7D32", marginTop: 10, marginBottom: 4 },
+    heading3: { fontSize: 15, fontWeight: "600" as const, color: "#2E7D32", marginTop: 8, marginBottom: 2 },
+    strong: { fontWeight: "700" as const, color: "#1A3A1A" },
+    bullet_list: { marginVertical: 4 },
+    bullet_list_item: { flexDirection: "row" as const },
+    bullet_list_icon: { color: "#4CAF50", marginRight: 6 },
+    ordered_list_item: { flexDirection: "row" as const },
+    code_inline: { backgroundColor: "#E8F5E9", color: "#1B5E20", borderRadius: 4, paddingHorizontal: 4, fontFamily: "monospace" },
+    fence: { backgroundColor: "#E8F5E9", padding: 10, borderRadius: 8, marginVertical: 6 },
+    blockquote: { borderLeftWidth: 3, borderLeftColor: "#4CAF50", paddingLeft: 10, marginVertical: 4, opacity: 0.85 },
+    hr: { backgroundColor: "#C8E6C9", height: 1, marginVertical: 8 },
+    paragraph: { marginVertical: 4 },
 }
 
 const styles = StyleSheet.create({

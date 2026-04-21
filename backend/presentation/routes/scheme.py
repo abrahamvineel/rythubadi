@@ -18,7 +18,7 @@ def scheme_router(request: SchemeRequest,
 def _build_scheme_advisor_agent(request: SchemeRequest):
     return SchemeAdvisorState(
         producer_id=request.producer_id,
-        region=RegionalContext(request.province_state),
+        region=RegionalContext(request.province_state, request.country),
         language=request.language,
         question=request.question,
         farmer_profile=None,

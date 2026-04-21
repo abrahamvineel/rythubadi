@@ -21,7 +21,7 @@ class OrchestratorGraph:
         self.scheme_advisor_graph = scheme_advisor.build()
     
     def _classify_node(self, state: OrchestratorState) -> OrchestratorState:
-        if state["has_image"]:
+        if state["has_image"] and state["image_url"]:
            return {**state, "routed_to": "crop_diagnosis"}
         prompt = [
             {"role": "system", "content": "Classify the farmer's question. Reply with exactly one word: crop_advisor, crop_diagnosis, or scheme_advisor."},

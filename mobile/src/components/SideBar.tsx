@@ -9,10 +9,12 @@ type Props = {
     onNewChat: () => void
     onDeleteChat: (id: string) => void
     name: string | null
+    language: string
+    provinceState: string
     onLogout: () => void
 }
 
-export function Sidebar({ chats, activeChatId, onSelectChat, onNewChat, onDeleteChat, name, onLogout }: Props) {
+export function Sidebar({ chats, activeChatId, onSelectChat, onNewChat, onDeleteChat, name, language, provinceState, onLogout }: Props) {
     const initials = name ? name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) : "?"
 
     return (
@@ -49,7 +51,7 @@ export function Sidebar({ chats, activeChatId, onSelectChat, onNewChat, onDelete
                 </View>
                 <View style={{ flex: 1 }}>
                     <Text style={styles.profileName} numberOfLines={1}>{name ?? "User"}</Text>
-                    <Text style={styles.profileSub}>Farmer</Text>
+                    <Text style={styles.profileSub}>{language} · {provinceState}</Text>
                 </View>
                 <TouchableOpacity onPress={onLogout} style={styles.logoutBtn}>
                     <Text style={styles.logoutText}>⏻</Text>

@@ -11,8 +11,8 @@ from dataclasses import dataclass
 from langfuse import Langfuse
 from infrastructure.llm.langfuse_claude_client import LangFuseClaudeClient
 from infrastructure.stubs.stub_soil_moisture_provider import StubSoilMoistureProvider
-from infrastructure.stubs.stub_weather_provider import StubWeatherProvider
-from infrastructure.stubs.stub_image_analyser import StubImageAnalyser
+from infrastructure.open_meteo_weather_adapter import OpenMeteoWeatherAdapter
+from infrastructure.claude_image_analyzer import ClaudeImageAnalyzer
 from infrastructure.stubs.stub_disease_corpus import StubDiseaseCorpus
 from infrastructure.stubs.in_memory_confirmation_repository import InMemoryConfirmationRepository
 from infrastructure.stubs.stub_producer_repository import StubProducerRepository
@@ -47,9 +47,9 @@ def build_services():
         langfuse = Langfuse(public_key=os.environ["LANGFUSE_PUBLIC_KEY"], secret_key=os.environ["LANGFUSE_SECRET_KEY"])
         llm_client = LangFuseClaudeClient(llm_client=claude_client, langfuse=langfuse, agent_name="crop_advisor")
 
-        crop_advisor_graph = CropAdvisorGraph(llm_client=llm_client, weather_provider=StubWeatherProvider(), soil_moisture_provider=StubSoilMoistureProvider())
+        crop_advisor_graph = CropAdvisorGraph(llm_client=llm_client, weather_provider=OpenMeteoWeatherAdapter(), soil_moisture_provider=StubSoilMoistureProvider())
         
-        crop_diagnosis_graph = CropDiagnosisGraph(llm_client=llm_client, weather_provider=StubWeatherProvider(), image_analyzer=StubImageAnalyser(), disease_corpus=StubDiseaseCorpus(), confirmation_repo=InMemoryConfirmationRepository())
+        crop_diagnosis_graph = CropDiagnosisGraph(llm_client=llm_client, weather_provider=OpenMeteoWeatherAdapter(), image_analyzer=ClaudeImageAnalyzer(api_key=llm_api_key), disease_corpus=StubDiseaseCorpus(), confirmation_repo=InMemoryConfirmationRepository())
 
         scheme_advisor_graph = SchemeAdvisorGraph(llm_client=llm_client, producer_repo=StubProducerRepository(), scheme_repo=StubSchemeRepository())
 

@@ -9,6 +9,7 @@ class ChatRequest(BaseModel):
     producer_id: UUID
     crop_type: str
     province_state: str
+    country: str = "CA"
     producer_type: ProducerType
     language: Language
     image_url: Optional[str]

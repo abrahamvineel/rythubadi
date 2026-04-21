@@ -6,6 +6,9 @@ class RegisterRequest(BaseModel):
     phone_number: Optional[str] = None
     name: str
     password: str
+    language: str = "EN"
+    province_state: str = "general"
+    country: str = "CA"
 
     @model_validator(mode="after")
     def check_contact_method(self):

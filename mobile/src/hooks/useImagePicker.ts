@@ -24,20 +24,24 @@ export function useImagePicker() {
     
     async function uploadImage(): Promise<string | null> {
         if (!imageUri) return null
-        
 
         const formData = new FormData()
-        formData.append("file", {
-            uri: imageUri,
-            name: "photo.jpg",
-            type: "image/jpeg",
-        } as any)
+
+        if (imageUri.startsWith("blob:") || imageUri.startsWith("data:")) {
+            const response = await fetch(imageUri)
+            const blob = await response.blob()
+            const file = new File([blob], "photo.jpg", { type: "image/jpeg" })
+            formData.append("file", file, "photo.jpg")
+        } else {
+            formData.append("file", { uri: imageUri, name: "photo.jpg", type: "image/jpeg" } as any)
+        }
 
         const res = await fetch("http://localhost:8000/upload", {
             method: "POST",
             body: formData,
         })
 
+        if (!res.ok) return null
         const data = await res.json()
         return data.url
     }

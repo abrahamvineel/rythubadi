@@ -29,7 +29,7 @@ class CropAdvisorGraph:
         return "agronomist"
     
     def _fetch_weather_node(self, state: AgentState) -> AgentState:
-        result = self._weather_provider.get_weather(state["region"].province_state)
+        result = self._weather_provider.get_weather(state["region"])
         return {**state, "weather_context": result, "tools_called": state["tools_called"] + ["weather"]}
     
     def _fetch_soil_node(self, state: AgentState) -> AgentState:

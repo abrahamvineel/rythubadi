@@ -16,7 +16,7 @@ class TestCropDiagnosisGraph:
     def test_diagnosis_saves_pending_confirmation(self):
         diagnosis_state = CropDiagnosisState(image_url="s3://image.jpg",
                                              crop_type="paddy", 
-                                             region=RegionalContext("Andhra Pradesh"),
+                                             region=RegionalContext("Andhra Pradesh", "IN"),
                                              language=Language.EN,
                                              producer_id=uuid.uuid4(),
                                              weather_context=None,
@@ -43,7 +43,7 @@ class TestCropDiagnosisGraph:
     def test_diagnosis_returns_pending_true(self):
         diagnosis_state = CropDiagnosisState(image_url="s3://image.jpg",
                                          crop_type="paddy", 
-                                         region=RegionalContext("Andhra Pradesh"),
+                                         region=RegionalContext("Andhra Pradesh", "IN"),
                                          language=Language.EN,
                                          producer_id=uuid.uuid4(),
                                          weather_context=None,

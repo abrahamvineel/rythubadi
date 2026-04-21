@@ -9,6 +9,16 @@ export type Chat = {
     messages: Message[]
 }
 
+function getProducerId(): string {
+    const token = localStorage.getItem("access_token")
+    if (!token) return ""
+    try {
+        const payload = token.split(".")[1]
+        const decoded = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")))
+        return decoded.user_id ?? ""
+    } catch { return "" }
+}
+
 function authHeaders(): HeadersInit {
     const token = localStorage.getItem("access_token")
     return {
@@ -29,7 +39,7 @@ async function fetchMessages(chatId: string): Promise<Message[]> {
     } catch { return [] }
 }
 
-export function useChats() {
+export function useChats({ language = "EN", provinceState = "general", country = "CA" }: { language?: string; provinceState?: string; country?: string } = {}) {
     const [chats, setChats] = useState<Chat[]>([])
     const [activeChatId, setActiveChatId] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(false)
@@ -109,12 +119,13 @@ export function useChats() {
             headers: authHeaders(),
             body: JSON.stringify({
                 message: text,
-                producer_id: "00000000-0000-0000-0000-000000000001",
+                producer_id: getProducerId(),
                 image_url: imageUrl ?? null,
                 crop_type: "general",
-                province_state: "Andhra Pradesh",
+                province_state: provinceState,
+                country: country,
                 producer_type: 1,
-                language: "EN",
+                language: language,
             }),
         })
         const data = await res.json()

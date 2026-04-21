@@ -12,7 +12,7 @@ class TestSchemeAdvisorGraph:
     def test_scheme_advisor_returns_llm_response(self):
         scheme_advisor = SchemeAdvisorState(
                             producer_id=uuid.uuid4(),
-                            region=RegionalContext("Andhra Pradesh"),
+                            region=RegionalContext("Andhra Pradesh", "IN"),
                             language=Language.EN,
                             question="What schemes am I eligible for?",
                             farmer_profile=None,
@@ -28,7 +28,7 @@ class TestSchemeAdvisorGraph:
     def test_scheme_advisor_calls_all_tools(self):
         scheme_advisor = SchemeAdvisorState(
                             producer_id=uuid.uuid4(),
-                            region=RegionalContext("Andhra Pradesh"),
+                            region=RegionalContext("Andhra Pradesh", "IN"),
                             language=Language.EN,
                             question="What schemes am I eligible for?",
                             farmer_profile=None,

@@ -22,7 +22,7 @@ def _build_agent_state(request: ChatRequest) -> OrchestratorState:
                             crop_type        = request.crop_type,
                             producer_id      = request.producer_id,
                             producer_type    = request.producer_type,
-                            region           = RegionalContext(request.province_state),
+                            region           = RegionalContext(request.province_state, request.country),
                             language         = request.language,
                             routed_to        = None,
                             specialist_response = None)

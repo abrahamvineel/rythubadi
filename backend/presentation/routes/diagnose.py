@@ -18,7 +18,7 @@ def diagnose_router(request: DiagnoseRequest,
 def _build_crop_diagnosis_agent(request: DiagnoseRequest) -> CropDiagnosisState:
     return CropDiagnosisState(image_url=request.image_url,
                               crop_type=request.crop_type, 
-                              region=RegionalContext(request.province_state),
+                              region=RegionalContext(request.province_state, request.country),
                               language=request.language,
                               producer_id=request.producer_id,
                               weather_context=None,
