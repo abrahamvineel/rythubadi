@@ -12,6 +12,7 @@ from presentation.routes.conversations import router as conversations_router
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import uuid
+from pathlib import Path
 DEBUG = os.getenv("DEBUG", "false")
 
 docs = "/docs" if DEBUG == "true" else None
@@ -43,4 +44,6 @@ app.include_router(voice_router)
 app.include_router(upload_router)
 app.include_router(auth_router)
 app.include_router(conversations_router)
-app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+uploads_dir = Path("uploads")
+uploads_dir.mkdir(exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")

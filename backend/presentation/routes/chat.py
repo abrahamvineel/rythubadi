@@ -25,4 +25,6 @@ def _build_agent_state(request: ChatRequest) -> OrchestratorState:
                             region           = RegionalContext(request.province_state, request.country),
                             language         = request.language,
                             routed_to        = None,
-                            specialist_response = None)
+                            specialist_response = None,
+                            lat              = request.lat,
+                            lon              = request.lon)

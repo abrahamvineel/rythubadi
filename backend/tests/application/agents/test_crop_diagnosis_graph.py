@@ -25,7 +25,9 @@ class TestCropDiagnosisGraph:
                                             llm_diagnosis=None,
                                             confirmation_id=None,
                                             pending_confirmation=False,
-                                            tools_called=[])
+                                            tools_called=[],
+                                            lat=None,
+                                            lon=None)
         
         fake_image_analyser = FakeImageAnalyser("s3://image.jpg")
         fake_disease_corpus = FakeDiseaseCorpus(["image1", "image2"])

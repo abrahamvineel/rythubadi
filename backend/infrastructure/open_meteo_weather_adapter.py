@@ -2,25 +2,14 @@ from domain.weather_context import WeatherContext
 from domain.data_precision import DataPrecision
 from domain.regional_context import RegionalContext
 import httpx
+from typing import Optional
 
 class OpenMeteoWeatherAdapter:
 
     _PROVINCE_CAPITALS: dict[str, str] = {
-        # Canada
-        "ontario": "Toronto", "british columbia": "Vancouver", "alberta": "Calgary",
-        "quebec": "Montreal", "manitoba": "Winnipeg", "saskatchewan": "Regina",
-        "nova scotia": "Halifax", "new brunswick": "Fredericton",
-        "newfoundland": "St. John's", "prince edward island": "Charlottetown",
-        # India
-        "andhra pradesh": "Hyderabad", "telangana": "Hyderabad",
-        "karnataka": "Bangalore", "tamil nadu": "Chennai",
-        "maharashtra": "Mumbai", "gujarat": "Ahmedabad",
-        "rajasthan": "Jaipur", "uttar pradesh": "Lucknow",
-        "west bengal": "Kolkata", "punjab": "Chandigarh",
-        # USA
-        "california": "Los Angeles", "texas": "Houston",
-        "new york": "New York City", "florida": "Miami",
-        "illinois": "Chicago", "pennsylvania": "Philadelphia",
+        "ontario": "Toronto",
+        "quebec": "Quebec City",
+        "andhra pradesh": "Bapatla",
     }
 
     def _geocode(self, region: RegionalContext) -> tuple[float, float]:
@@ -32,9 +21,13 @@ class OpenMeteoWeatherAdapter:
             raise ValueError(f"Unknown region: {region.province_state} ({region.country})")
         return (data["results"][0]["latitude"], data["results"][0]["longitude"])
     
-    def get_weather(self, region: RegionalContext) -> WeatherContext:
-        lat, lon = self._geocode(region=region)
-        response = httpx.get("https://api.open-meteo.com/v1/forecast", 
+    def get_weather(self, region: RegionalContext, lat: Optional[float] = None, lon: Optional[float] = None) -> WeatherContext:
+        if lat is None or lon is None:
+            lat, lon = self._geocode(region=region)
+            precision = DataPrecision.PROVINCE
+        else:
+            precision = DataPrecision.FIELD
+        response = httpx.get("https://api.open-meteo.com/v1/forecast",
                              params={
                                  "latitude":lat,
                                  "longitude":lon,
@@ -54,5 +47,5 @@ class OpenMeteoWeatherAdapter:
             visibility=current["visibility"],
             pressure=current["surface_pressure"],
             humidity=current["relative_humidity_2m"],
-            precision_level=DataPrecision.PROVINCE,
+            precision_level=precision,
         )

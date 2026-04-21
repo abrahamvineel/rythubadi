@@ -21,6 +21,8 @@ class AgentState(TypedDict):
     soil_moisture: Optional[float]
     data_disclaimer: Optional[str]
     language: Language
+    lat: Optional[float]
+    lon: Optional[float]
 
 def advise(agent_state: AgentState, llm_client: ILLMClient) -> AgentState:
     sanitise(agent_state["farmer_question"])

@@ -1,3 +1,4 @@
+import os
 import io
 from fastapi import APIRouter, UploadFile, HTTPException, Depends
 from fastapi.responses import StreamingResponse
@@ -7,20 +8,22 @@ from application.ports.i_stt_provider import ISTTProvider
 from application.ports.i_tts_provider import ITTSProvider
 from application.prompt_injection_guard import sanitise
 from application.prompt_injection_guard import PromptInjectionDetectedError
-from infrastructure.stubs.fake_stt_provider import FakeSTTProvider
-from infrastructure.stubs.fake_tts_provider import FakeTTSProvider
+from infrastructure.voice.whisper_stt_adapter import WhisperSTTAdapter
+from infrastructure.voice.openai_tts_adapter import OpenAITTSAdapter
+from openai import OpenAI
 
 router = APIRouter()
+client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
 def get_stt_provider() -> ISTTProvider:
-    return FakeSTTProvider()
+    return WhisperSTTAdapter(client)
 
 def get_tts_provider() -> ITTSProvider:
-    return FakeTTSProvider()
+    return OpenAITTSAdapter(client)
 
 @router.post("/voice/transcribe")
 async def transcribe(file: UploadFile, stt: ISTTProvider = Depends(get_stt_provider)):
-    if file.content_type not in ["audio/wav", "audio/mpeg", "audio/mp4"]:
+    if file.content_type not in ["audio/wav", "audio/mpeg", "audio/mp4", "audio/webm"]:
         raise HTTPException(status_code=415, detail="Unsupported audio format")
     
     audio_bytes = await file.read()

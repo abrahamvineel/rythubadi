@@ -44,7 +44,9 @@ class OrchestratorGraph:
             soil_moisture   = None,
             data_disclaimer = None,
             error_details   = None,
-            tools_called    = []
+            tools_called    = [],
+            lat             = state.get("lat"),
+            lon             = state.get("lon"),
         )
         result = self.crop_advisor_graph.invoke(advisor_input)
         answer = result["recommendation"]
@@ -66,7 +68,9 @@ class OrchestratorGraph:
                 llm_diagnosis    = None,
                 confirmation_id  = None,
                 pending_confirmation = False,
-                tools_called     = []
+                tools_called     = [],
+                lat              = state.get("lat"),
+                lon              = state.get("lon"),
         )
         result = self.crop_diagnosis_graph.invoke(advisor_input)
         answer = result["llm_diagnosis"]

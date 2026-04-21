@@ -44,8 +44,7 @@ def build_services():
         llm_api_key = os.environ["ANTHROPIC_API_KEY"]
         claude_client = ClaudeClient(llm_api_key)
 
-        langfuse = Langfuse(public_key=os.environ["LANGFUSE_PUBLIC_KEY"], secret_key=os.environ["LANGFUSE_SECRET_KEY"])
-        llm_client = LangFuseClaudeClient(llm_client=claude_client, langfuse=langfuse, agent_name="crop_advisor")
+        llm_client = LangFuseClaudeClient(llm_client=claude_client, agent_name="crop_advisor")
 
         crop_advisor_graph = CropAdvisorGraph(llm_client=llm_client, weather_provider=OpenMeteoWeatherAdapter(), soil_moisture_provider=StubSoilMoistureProvider())
         

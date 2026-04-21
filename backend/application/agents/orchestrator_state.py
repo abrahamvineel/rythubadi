@@ -15,3 +15,5 @@ class OrchestratorState(TypedDict):
     language: Language
     routed_to: Optional[str]
     specialist_response: Optional[str]
+    lat: Optional[float]
+    lon: Optional[float]

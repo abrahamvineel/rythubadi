@@ -3,15 +3,14 @@ import { View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator, Toucha
 
 const LANGUAGES = [
     { label: "English", value: "EN" },
-    { label: "Hindi", value: "HI" },
     { label: "Telugu", value: "TE" },
     { label: "French", value: "FR" },
 ]
 
 const REGIONS = [
-    "general", "Ontario", "British Columbia", "Quebec", "Alberta",
-    "Andhra Pradesh", "Telangana", "Punjab", "Maharashtra",
-    "California", "Texas", "Iowa", "Florida",
+    { label: "Ontario, Canada", value: "Ontario" },
+    { label: "Quebec, Canada", value: "Quebec" },
+    { label: "Andhra Pradesh, India", value: "Andhra Pradesh" },
 ]
 
 type Props = {
@@ -25,7 +24,7 @@ export function RegisterScreen({ onRegister, onGoToLogin, error }: Props) {
     const [name, setName] = useState("")
     const [password, setPassword] = useState("")
     const [language, setLanguage] = useState("EN")
-    const [provinceState, setProvinceState] = useState("general")
+    const [provinceState, setProvinceState] = useState("Ontario")
     const [loading, setLoading] = useState(false)
 
     async function handleRegister() {
@@ -63,12 +62,12 @@ export function RegisterScreen({ onRegister, onGoToLogin, error }: Props) {
                 <View style={styles.optionRow}>
                     {REGIONS.map(r => (
                         <TouchableOpacity
-                            key={r}
-                            style={[styles.chip, provinceState === r && styles.chipActive]}
-                            onPress={() => setProvinceState(r)}
+                            key={r.value}
+                            style={[styles.chip, provinceState === r.value && styles.chipActive]}
+                            onPress={() => setProvinceState(r.value)}
                         >
-                            <Text style={[styles.chipText, provinceState === r && styles.chipTextActive]}>
-                                {r.charAt(0).toUpperCase() + r.slice(1)}
+                            <Text style={[styles.chipText, provinceState === r.value && styles.chipTextActive]}>
+                                {r.label}
                             </Text>
                         </TouchableOpacity>
                     ))}

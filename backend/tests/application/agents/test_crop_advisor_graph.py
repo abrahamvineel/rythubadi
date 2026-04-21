@@ -27,7 +27,9 @@ class TestCropAdvisorGraph:
                                  tools_called=[],
                                  soil_moisture=None,
                                  data_disclaimer=None,
-                                 language=Language.EN)
+                                 language=Language.EN,
+                                 lat=None,
+                                 lon=None)
         llm_client = FakeLLMClient("Crop should be watered now.")   
 
         weather_provider = FakeWeatherProvider(WeatherContext(23.0, 23.0, 18.0, None, None, 10.9, None, None, 78.3, DataPrecision.DISTRICT))
@@ -57,7 +59,9 @@ class TestCropAdvisorGraph:
                                  tools_called=[],
                                  soil_moisture=None,
                                  data_disclaimer=None,
-                                 language=Language.EN)
+                                 language=Language.EN,
+                                 lat=None,
+                                 lon=None)
          llm_client = FakeLLMClient("Crop should be watered now.")
          weather_provider = FakeWeatherProvider(WeatherContext(23.0, 23.0, 18.0, None, None, 10.9, None, None, 78.3, DataPrecision.DISTRICT))
          soil_provider = FakeSoilMoistureProvider(45.0)

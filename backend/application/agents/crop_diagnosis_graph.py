@@ -25,7 +25,7 @@ class CropDiagnosisGraph:
         self.confirmation_repo = confirmation_repo
 
     def _fetch_weather_node(self, state: CropDiagnosisState) -> CropDiagnosisState:
-        result = self.weather_provider.get_weather(state["region"])
+        result = self.weather_provider.get_weather(state["region"], lat=state.get("lat"), lon=state.get("lon"))
         return {**state, "weather_context": result, "tools_called": state["tools_called"] + ["weather"]}
     
     def _analyse_image_node(self, state: CropDiagnosisState) -> CropDiagnosisState:

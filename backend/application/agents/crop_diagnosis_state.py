@@ -17,4 +17,6 @@ class CropDiagnosisState(TypedDict):
         confirmation_id: Optional[UUID]
         pending_confirmation: bool
         tools_called: list
+        lat: Optional[float]
+        lon: Optional[float]
         

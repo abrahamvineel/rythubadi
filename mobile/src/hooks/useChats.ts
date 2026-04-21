@@ -101,6 +101,18 @@ export function useChats({ language = "EN", provinceState = "general", country =
         }
     }
 
+    // GPS disabled until field-location onboarding is implemented
+    // async function getGps(): Promise<{ lat: number; lon: number } | null> {
+    //     return new Promise(resolve => {
+    //         if (!navigator.geolocation) { resolve(null); return }
+    //         navigator.geolocation.getCurrentPosition(
+    //             pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+    //             () => resolve(null),
+    //             { timeout: 5000 }
+    //         )
+    //     })
+    // }
+
     async function sendMessageToActiveChat(text: string, imageUrl?: string): Promise<void> {
         if (!activeChatId) return
         setIsLoading(true)
@@ -114,6 +126,8 @@ export function useChats({ language = "EN", provinceState = "general", country =
             body: JSON.stringify({ content: text, attachment_url: imageUrl ?? null, system_generated: false })
         })
 
+        // GPS disabled until field-location onboarding is implemented
+        // const gps = await getGps()
         const res = await fetch(`${API_BASE}/chat`, {
             method: "POST",
             headers: authHeaders(),
@@ -126,6 +140,8 @@ export function useChats({ language = "EN", provinceState = "general", country =
                 country: country,
                 producer_type: 1,
                 language: language,
+                lat: null,
+                lon: null,
             }),
         })
         const data = await res.json()
