@@ -14,8 +14,9 @@ class PostgresUserRepository:
         self.pool = pool
 
     def save(self, user: User) -> None:
-        conn = self.pool.getconn()
+        conn = None
         try:
+            conn = self.pool.getconn()
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("INSERT INTO users"
                 " (id, email, phone_number, name, password_hash, language, province_state, country) " \
@@ -26,14 +27,17 @@ class PostgresUserRepository:
             logger.info("User created", user_id=str(user.id))
         except Exception:
             logger.exception("User creation failed", user_id=str(user.id))
-            conn.rollback()
+            if conn:
+                conn.rollback()
             raise
         finally:
-            self.pool.putconn(conn)
+            if conn:
+                self.pool.putconn(conn)
 
     def find_by_email(self, email: str) -> Optional[User]:
-        conn = self.pool.getconn()
+        conn = None
         try:
+            conn = self.pool.getconn()
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("SELECT id, email, phone_number, name, password_hash, language, province_state, country FROM users WHERE email = %s", (email,))
                 res = cur.fetchone()
@@ -46,11 +50,13 @@ class PostgresUserRepository:
         except Exception:
             logger.exception("find_by_email failed", email=str(email))
         finally:
-            self.pool.putconn(conn)
+            if conn:
+                self.pool.putconn(conn)
 
     def find_by_phone_number(self, phone: str) -> Optional[User]:
-        conn = self.pool.getconn()
+        conn = None
         try:
+            conn = self.pool.getconn()
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("SELECT id, email, phone_number, name, password_hash, language, province_state, country FROM users WHERE phone_number = %s", (phone,))
                 res = cur.fetchone()
@@ -63,4 +69,5 @@ class PostgresUserRepository:
         except Exception:
             logger.exception("find_by_phone_number failed", phone=str(phone))
         finally:
-            self.pool.putconn(conn)
+            if conn:
+                self.pool.putconn(conn)

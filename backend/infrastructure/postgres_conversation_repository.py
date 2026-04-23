@@ -14,8 +14,9 @@ class PostgresConversationRepository:
         self._pool = pool
 
     def create(self, session: ChatSession) -> None:
-        conn = self._pool.getconn()
+        conn = None
         try:
+            conn = self._pool.getconn()
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
                     "INSERT INTO chat_session (id, title, producer_id, is_deleted) VALUES (%s, %s, %s, %s)",
@@ -24,15 +25,18 @@ class PostgresConversationRepository:
             conn.commit()
             logger.info("chat_session created", session_id=str(session.id))
         except Exception:
-            conn.rollback()
+            if conn:
+                conn.rollback()
             logger.exception("create failed", session_id=str(session.id))
             raise
         finally:
-            self._pool.putconn(conn)
+            if conn:
+                self._pool.putconn(conn)
 
     def find_all_by_user(self, user_id: str) -> list[ChatSession]:
-        conn = self._pool.getconn()
+        conn = None
         try:
+            conn = self._pool.getconn()
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
                     "SELECT id, title, producer_id, is_deleted FROM chat_session "
@@ -45,11 +49,13 @@ class PostgresConversationRepository:
             logger.exception("find_all_by_user failed", user_id=user_id)
             return []
         finally:
-            self._pool.putconn(conn)
+            if conn:
+                self._pool.putconn(conn)
 
     def delete(self, session_id: UUID, user_id: str) -> None:
-        conn = self._pool.getconn()
+        conn = None
         try:
+            conn = self._pool.getconn()
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
                     "UPDATE chat_session SET is_deleted = true WHERE id = %s AND producer_id = %s",
@@ -58,15 +64,18 @@ class PostgresConversationRepository:
             conn.commit()
             logger.info("chat_session deleted", session_id=str(session_id))
         except Exception:
-            conn.rollback()
+            if conn:
+                conn.rollback()
             logger.exception("delete failed", session_id=str(session_id))
             raise
         finally:
-            self._pool.putconn(conn)
+            if conn:
+                self._pool.putconn(conn)
 
     def find_messages_by_session(self, session_id: UUID) -> list[ChatMessage]:
-        conn = self._pool.getconn()
+        conn = None
         try:
+            conn = self._pool.getconn()
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
                     "SELECT chat_session_id, content, attachment_url, system_generated, language "
@@ -81,11 +90,13 @@ class PostgresConversationRepository:
             logger.exception("find_messages_by_session failed", session_id=str(session_id))
             return []
         finally:
-            self._pool.putconn(conn)
+            if conn:
+                self._pool.putconn(conn)
 
     def save_message(self, message: ChatMessage) -> None:
-        conn = self._pool.getconn()
+        conn = None
         try:
+            conn = self._pool.getconn()
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
                     "INSERT INTO chat_message (chat_session_id, content, attachment_url, system_generated, language) "
@@ -95,8 +106,10 @@ class PostgresConversationRepository:
             conn.commit()
             logger.info("chat_message saved", session_id=str(message.chat_session_id))
         except Exception:
-            conn.rollback()
+            if conn:
+                conn.rollback()
             logger.exception("save_message failed", session_id=str(message.chat_session_id))
             raise
         finally:
-            self._pool.putconn(conn)
+            if conn:
+                self._pool.putconn(conn)

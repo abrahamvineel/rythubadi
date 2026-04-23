@@ -16,13 +16,13 @@ from infrastructure.claude_image_analyzer import ClaudeImageAnalyzer
 from infrastructure.stubs.stub_disease_corpus import StubDiseaseCorpus
 from infrastructure.stubs.in_memory_confirmation_repository import InMemoryConfirmationRepository
 from infrastructure.stubs.stub_producer_repository import StubProducerRepository
-from infrastructure.stubs.stub_scheme_repository import StubSchemeRepository
 from application.agents.crop_advisor_graph import CropAdvisorGraph
 from application.agents.crop_diagnosis_graph import CropDiagnosisGraph
 from application.agents.scheme_advisor_graph import SchemeAdvisorGraph
 from application.agents.orchestrator_graph import OrchestratorGraph
 from langgraph.graph.state import CompiledStateGraph
-
+from infrastructure.pgvector_scheme_repository import PgVectorSchemeRepository
+from openai import OpenAI
 
 @dataclass
 class Services:
@@ -40,6 +40,9 @@ def build_services():
         pool = ThreadedConnectionPool(2, 10, dsn=os.environ["DATABASE_URL"])
         repo = PostgresMarketListingRepository(pool)
         market_listing = MarketListingService(repo)
+        openai_client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+
+        pgvector_scheme_repo = PgVectorSchemeRepository(pool, openai_client)
 
         llm_api_key = os.environ["ANTHROPIC_API_KEY"]
         claude_client = ClaudeClient(llm_api_key)
@@ -50,7 +53,7 @@ def build_services():
         
         crop_diagnosis_graph = CropDiagnosisGraph(llm_client=llm_client, weather_provider=OpenMeteoWeatherAdapter(), image_analyzer=ClaudeImageAnalyzer(api_key=llm_api_key), disease_corpus=StubDiseaseCorpus(), confirmation_repo=InMemoryConfirmationRepository())
 
-        scheme_advisor_graph = SchemeAdvisorGraph(llm_client=llm_client, producer_repo=StubProducerRepository(), scheme_repo=StubSchemeRepository())
+        scheme_advisor_graph = SchemeAdvisorGraph(llm_client=llm_client, producer_repo=StubProducerRepository(), scheme_repo=pgvector_scheme_repo)
 
         orchestrator_graph = OrchestratorGraph(
                 llm_client=llm_client,

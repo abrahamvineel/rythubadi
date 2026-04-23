@@ -16,8 +16,9 @@ class PostgresMarketListingRepository:
         self.pool = pool
 
     def save(self, listing: MarketListing) -> None:
-        conn = self.pool.getconn()
+        conn = None
         try:
+            conn = self.pool.getconn()
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 row = domain_to_row(listing)
                 cur.execute("INSERT INTO market_listing (listing_id, listing_mode, price, product_category, perishability_level, producer_id, is_active, photo_url)" \
@@ -26,13 +27,16 @@ class PostgresMarketListingRepository:
             logger.info("Market listing added", listing_id=str(listing.listing_id))
         except Exception:
             logger.exception("save_failed", listing_id=str(listing.listing_id))
-            conn.rollback()
+            if conn:
+                conn.rollback()
         finally:
-            self.pool.putconn(conn)
+            if conn:
+                self.pool.putconn(conn)
 
     def find_by_id(self, listing_id: UUID) -> Optional[MarketListing]:
-        conn = self.pool.getconn()
+        conn = None
         try:
+            conn = self.pool.getconn()
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("SELECT listing_id, listing_mode, price, product_category, perishability_level, created_at, producer_id, is_active, photo_url" \
                 " FROM market_listing WHERE listing_id = %s", (listing_id,))
@@ -42,13 +46,16 @@ class PostgresMarketListingRepository:
                 return row_to_domain(res)
         except Exception:
             logger.exception("find_by_id failed", listing_id=str(listing_id))
-            conn.rollback()
+            if conn:
+                conn.rollback()
         finally:
-            self.pool.putconn(conn)
+            if conn:
+                self.pool.putconn(conn)
 
     def find_by_producer_id(self, producer_id: UUID) -> list[MarketListing]:
-        conn = self.pool.getconn()
+        conn = None
         try:
+            conn = self.pool.getconn()
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("SELECT listing_id, listing_mode, price, product_category, perishability_level, created_at, producer_id, is_active, photo_url" \
                 " FROM market_listing WHERE producer_id = %s", (producer_id,))
@@ -56,13 +63,16 @@ class PostgresMarketListingRepository:
                 return [row_to_domain(row) for row in res]
         except Exception:
             logger.exception("find_by_producer_id failed", producer_id=str(producer_id))
-            conn.rollback()
+            if conn:
+                conn.rollback()
         finally:
-            self.pool.putconn(conn)
+            if conn:
+                self.pool.putconn(conn)
     
     def find_active(self, limit: int, created_at: Optional[datetime], listing_id: Optional[UUID]) -> list[MarketListing]:
-        conn = self.pool.getconn()
+        conn = None
         try:
+            conn = self.pool.getconn()
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 if created_at is None:
                     cur.execute("SELECT listing_id, listing_mode, price, product_category, perishability_level, created_at, producer_id, is_active, photo_url" \
@@ -71,18 +81,21 @@ class PostgresMarketListingRepository:
                 else:
                     cur.execute("SELECT listing_id, listing_mode, price, product_category, perishability_level, created_at, producer_id, is_active, photo_url" \
                     " FROM market_listing WHERE is_active = true AND (created_at < %s OR (created_at = %s AND listing_id < %s))" \
-                    "ORDER BY created_at DESC, listing_id DESC LIMIT %s", (created_at, created_at, listing_id, limit))                    
+                    "ORDER BY created_at DESC, listing_id DESC LIMIT %s", (created_at, created_at, listing_id, limit))
                 res = cur.fetchall()
                 return [row_to_domain(row) for row in res]
         except Exception:
             logger.exception("find_active failed")
-            conn.rollback()
+            if conn:
+                conn.rollback()
         finally:
-            self.pool.putconn(conn)
+            if conn:
+                self.pool.putconn(conn)
 
     def find_all_active(self) -> list[MarketListing]:
-        conn = self.pool.getconn()
+        conn = None
         try:
+            conn = self.pool.getconn()
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("SELECT listing_id, listing_mode, price, product_category, perishability_level, created_at, producer_id, is_active, photo_url" \
                 " FROM market_listing WHERE is_active = true ")
@@ -90,30 +103,38 @@ class PostgresMarketListingRepository:
                 return [row_to_domain(row) for row in res]
         except Exception:
             logger.exception("find_all_active failed")
-            conn.rollback()
+            if conn:
+                conn.rollback()
         finally:
-            self.pool.putconn(conn)
+            if conn:
+                self.pool.putconn(conn)
     
     def deactivate(self, listing_id: UUID) -> None:
-        conn = self.pool.getconn()
+        conn = None
         try:
+            conn = self.pool.getconn()
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute('UPDATE market_listing SET is_active = false WHERE listing_id = %s', (listing_id,))
             conn.commit()
         except Exception:
             logger.exception("deactivate failed", listing_id=str(listing_id))
-            conn.rollback()
+            if conn:
+                conn.rollback()
         finally:
-            self.pool.putconn(conn)
+            if conn:
+                self.pool.putconn(conn)
 
     @contextmanager
     def transaction(self) -> Iterator[None]:
-        conn = self.pool.getconn()
+        conn = None
         try:
-            yield 
+            conn = self.pool.getconn()
+            yield
             conn.commit()
         except Exception:
-            conn.rollback()
+            if conn:
+                conn.rollback()
             raise
         finally:
-            self.pool.putconn(conn)
+            if conn:
+                self.pool.putconn(conn)
