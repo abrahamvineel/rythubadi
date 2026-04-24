@@ -13,13 +13,12 @@ from infrastructure.voice.openai_tts_adapter import OpenAITTSAdapter
 from openai import OpenAI
 
 router = APIRouter()
-client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
 def get_stt_provider() -> ISTTProvider:
-    return WhisperSTTAdapter(client)
+    return WhisperSTTAdapter(OpenAI(api_key=os.environ["OPENAI_API_KEY"]))
 
 def get_tts_provider() -> ITTSProvider:
-    return OpenAITTSAdapter(client)
+    return OpenAITTSAdapter(OpenAI(api_key=os.environ["OPENAI_API_KEY"]))
 
 @router.post("/voice/transcribe")
 async def transcribe(file: UploadFile, stt: ISTTProvider = Depends(get_stt_provider)):

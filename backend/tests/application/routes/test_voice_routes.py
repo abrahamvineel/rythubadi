@@ -9,6 +9,13 @@ client = TestClient(app)
 
 class TestVoiceRoutes:
 
+    @pytest.fixture(autouse=True)
+    def override_providers(self):
+        app.dependency_overrides[get_stt_provider] = lambda: FakeSTTProvider()
+        app.dependency_overrides[get_tts_provider] = lambda: FakeTTSProvider()
+        yield
+        app.dependency_overrides.clear()
+
     def test_valid_audio_returns_transcript(self):
         result = client.post("/voice/transcribe", files={"file": ("audio.wav", b"some audio bytes", "audio/wav")})
 

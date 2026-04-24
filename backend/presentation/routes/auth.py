@@ -10,12 +10,12 @@ from datetime import datetime, timedelta
 import bcrypt
 import jwt
 import os
-JWT_SECRET = os.environ["JWT_SECRET"]
 
 router = APIRouter()
 
 @router.post("/auth/register")
 def register(request: RegisterRequest):
+    jwt_secret = os.environ["JWT_SECRET"]
     repo = build_services().postgres_user_repo
     existing = repo.find_by_email(request.email) if request.email else repo.find_by_phone_number(request.phone_number)
     if existing is not None:
@@ -36,12 +36,13 @@ def register(request: RegisterRequest):
                         "province_state": user.province_state.province_state,
                         "country": user.province_state.country,
                         "exp": datetime.utcnow() + timedelta(hours=24)},
-                        JWT_SECRET, algorithm="HS256")
+                        jwt_secret, algorithm="HS256")
     return {"access_token": token, "token_type": "bearer"}
 
 
 @router.post("/auth/login")
 def login(request: LoginRequest):
+    jwt_secret = os.environ["JWT_SECRET"]
     repo = build_services().postgres_user_repo
     user = repo.find_by_email(request.email) if request.email else repo.find_by_phone_number(request.phone_number)
     if user is None:
@@ -55,5 +56,5 @@ def login(request: LoginRequest):
                         "province_state": user.province_state.province_state,
                         "country": user.province_state.country,
                         "exp": datetime.utcnow() + timedelta(hours=24)},
-                        JWT_SECRET, algorithm="HS256")
+                        jwt_secret, algorithm="HS256")
     return {"access_token": token, "token_type": "bearer"}
