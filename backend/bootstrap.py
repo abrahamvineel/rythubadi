@@ -28,7 +28,6 @@ from openai import OpenAI
 class Services:
         market_listing: MarketListingService
         llm_client: ILLMClient
-        crop_advisor_graph: CompiledStateGraph
         crop_diagnosis_graph: CompiledStateGraph
         scheme_advisor_graph: CompiledStateGraph
         orchestrator_graph: CompiledStateGraph
@@ -68,7 +67,6 @@ def build_services():
 
         return Services(market_listing=market_listing, 
                         llm_client=llm_client,
-                        crop_advisor_graph=crop_advisor_graph.build(), 
                         crop_diagnosis_graph=crop_diagnosis_graph.build(), 
                         scheme_advisor_graph=scheme_advisor_graph.build(),
                         orchestrator_graph=orchestrator_graph.build(),

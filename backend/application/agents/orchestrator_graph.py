@@ -6,6 +6,7 @@ from application.agents.crop_advisor_agent import AgentState
 from application.agents.crop_diagnosis_state import CropDiagnosisState
 from application.agents.scheme_advisor_state import SchemeAdvisorState
 from application.ports.i_llm_client import ILLMClient
+from application.prompt_injection_guard import sanitise
 from langgraph.graph import StateGraph, END
 
 class OrchestratorGraph:
@@ -23,6 +24,7 @@ class OrchestratorGraph:
     def _classify_node(self, state: OrchestratorState) -> OrchestratorState:
         if state["has_image"] and state["image_url"]:
            return {**state, "routed_to": "crop_diagnosis"}
+        sanitise(state["farmer_message"])
         prompt = [
             {"role": "system", "content": "Classify the farmer's question. Reply with exactly one word: crop_advisor, crop_diagnosis, or scheme_advisor."},
             {"role": "user", "content": state["farmer_message"]}
@@ -53,7 +55,9 @@ class OrchestratorGraph:
         return {**state, "specialist_response": answer}
     
     def _route(self, state: OrchestratorState) -> str:
-        return state["routed_to"]
+        if state["routed_to"] in ("crop_advisor", "crop_diagnosis", "scheme_advisor"):
+             return state["routed_to"]
+        return "crop_advisor"
     
     def _run_crop_diagnosis_node(self, state: OrchestratorState):
         advisor_input = CropDiagnosisState(
