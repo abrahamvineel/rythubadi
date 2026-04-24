@@ -1,6 +1,6 @@
 import { useState, useRef} from "react"
 
-export function useVoice(sendMessage: (text: string) => Promise<void>) {
+export function useVoice(sendMessage: (text: string) => Promise<string>, language: string) {
     const [isRecording, setIsRecording] = useState(false)
 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -33,7 +33,18 @@ export function useVoice(sendMessage: (text: string) => Promise<void>) {
                 body: formData,
             })
             const data = await res.json()
-            await sendMessage(data.transcript)
+            const responseText = await sendMessage(data.transcript)
+
+            if (responseText) {
+                const ttsRes = await fetch("http://localhost:8000/voice/speak", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: responseText, language }),
+                })
+                const audioBlob = await ttsRes.blob()
+                const audioUrl = URL.createObjectURL(audioBlob)
+                new Audio(audioUrl).play()
+            }
         }
         mediaRecorderRef.current.stop()
         setIsRecording(false)

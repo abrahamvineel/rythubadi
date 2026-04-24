@@ -113,8 +113,8 @@ export function useChats({ language = "EN", provinceState = "general", country =
     //     })
     // }
 
-    async function sendMessageToActiveChat(text: string, imageUrl?: string): Promise<void> {
-        if (!activeChatId) return
+    async function sendMessageToActiveChat(text: string, imageUrl?: string): Promise<string> {
+        if (!activeChatId) return ""
         setIsLoading(true)
 
         const userMsg: Message = { role: "user", text, timestamp: new Date().toISOString() }
@@ -155,6 +155,7 @@ export function useChats({ language = "EN", provinceState = "general", country =
         })
 
         setIsLoading(false)
+        return data.specialist_response
     }
 
     async function selectChat(chatId: string) {

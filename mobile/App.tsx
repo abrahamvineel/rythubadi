@@ -31,7 +31,7 @@ export default function App() {
     const scrollRef = useRef<ScrollView>(null)
     const activeChat = chats.find(c => c.id === activeChatId) ?? null
     const messages = activeChat?.messages ?? []
-    const { isRecording, startRecording, stopRecording } = useVoice(sendMessageToActiveChat)
+    const { isRecording, startRecording, stopRecording } = useVoice(sendMessageToActiveChat, language ?? "EN")
     const { imageUri, pickImage, uploadImage, clearImage } = useImagePicker()
 
     useEffect(() => {
