@@ -27,12 +27,13 @@ class AgentState(TypedDict):
 
 def advise(agent_state: AgentState, llm_client: ILLMClient) -> AgentState:
     sanitise(agent_state["farmer_question"])
-    response = llm_client.generate(_build_prompt(agent_state))
+    raw = llm_client.generate(_build_prompt(agent_state))
+    response, confidence = _parse_response(raw)
     if response == "":
             return {**agent_state, "recommendation": "Unable to get recommendation right now, "
         " Based on your region and this time of season, here's what to consider while you wait: "
         "[general guidance]. You can also consult your local agricultural extension office", "error_details": "LLM response is empty"}
-    return {**agent_state, "recommendation": response}
+    return {**agent_state, "recommendation": response, "confidence": confidence}
 
 def _build_prompt(agent_state: AgentState) -> list:
     crop_type = agent_state["crop_type"]
@@ -56,6 +57,10 @@ def _build_prompt(agent_state: AgentState) -> list:
 
     if soil_moisture is not None:
         context_parts.append(f"Soil moisture: {soil_moisture}%.")
+    
+    context_parts.append(
+        "End your response with exactly this line: CONFIDENCE: <decimal 0.0-1.0>"
+    )
 
     history = agent_state.get("conversation_history") or []
     return [
@@ -63,3 +68,14 @@ def _build_prompt(agent_state: AgentState) -> list:
         *history,
         {"role": "user", "content": f"Question: {farmer_question}"}
     ]
+
+def _parse_response(response: str) -> tuple[str, float]:
+    lines = response.strip().splitlines()
+    if lines and lines[-1].startswith("CONFIDENCE:"):
+        try:
+            confidence = float(lines[-1].split(":", 1)[1].strip())
+            advice = "\n".join(lines[:-1]).strip()
+            return advice, confidence
+        except ValueError:
+            pass
+    return response, 0.5

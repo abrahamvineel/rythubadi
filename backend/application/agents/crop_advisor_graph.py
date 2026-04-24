@@ -21,7 +21,7 @@ class CropAdvisorGraph:
         data_disclaimer = "Data precision level unknown"
         if weather_context:
             data_disclaimer = get_disclaimer(weather_context.precision_level, result["language"])
-        return {**result, "confidence": 0.9, "data_disclaimer": data_disclaimer}
+        return {**result, "data_disclaimer": data_disclaimer}
 
     def _route_node(self, state: AgentState) -> str:
         if state["confidence"] >= 0.7:
@@ -36,14 +36,20 @@ class CropAdvisorGraph:
         result = self._soil_moisture_provider.get_soil_moisture(state["region"].province_state)
         return {**state, "soil_moisture": result, "tools_called": state["tools_called"] + ["soil_moisture"]}
 
+    def _agronomist_node(self, state: AgentState) -> AgentState:
+        return {**state, "recommendation": 
+            "Your question needs specialist review. An agronomist will respond within 24 hours."}
+
     def build(self):
         graph = StateGraph(AgentState)
         graph.add_node("advise", self._advise_node)
         graph.add_node("fetch_weather", self._fetch_weather_node)
         graph.add_node("fetch_soil", self._fetch_soil_node)
+        graph.add_node("agronomist", self._agronomist_node)
         graph.set_entry_point("fetch_weather")
         graph.add_edge("fetch_weather", "fetch_soil")
         graph.add_edge("fetch_soil", "advise")
-        graph.add_conditional_edges("advise", self._route_node, {"end": END, "agronomist": END})
+        graph.add_conditional_edges("advise", self._route_node, {"end": END, "agronomist": "agronomist"})
+        graph.add_edge("agronomist", END)
         return graph.compile()
     

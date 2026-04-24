@@ -30,7 +30,7 @@ class TestCropAdvisorGraph:
                                  language=Language.EN,
                                  lat=None,
                                  lon=None)
-        llm_client = FakeLLMClient("Crop should be watered now.")   
+        llm_client = FakeLLMClient("Crop should be watered now.\nCONFIDENCE: 0.9")
 
         weather_provider = FakeWeatherProvider(WeatherContext(23.0, 23.0, 18.0, None, None, 10.9, None, None, 78.3, DataPrecision.DISTRICT))
         soil_provider = FakeSoilMoistureProvider(45.0)
@@ -74,3 +74,36 @@ class TestCropAdvisorGraph:
          with pytest.raises(PromptInjectionDetectedError):
              graph.invoke(agent_state)
     
+    def test_low_confidence_routes_to_agronomist(self):
+        agent_state = AgentState(
+            farmer_question="What is happening to my crop?",
+            recommendation=None,
+            producer_id=uuid.uuid4(),
+            producer_type=ProducerType.FARMER,
+            crop_type="paddy field",
+            region=RegionalContext("Andhra Pradesh", "IN"),
+            error_details=None,
+            weather_context=None,
+            confidence=None,
+            tools_called=[],
+            soil_moisture=None,
+            data_disclaimer=None,
+            language=Language.EN,
+            lat=None,
+            lon=None,
+            conversation_history=[]
+        )
+        llm_client = FakeLLMClient("I am not sure about this.\nCONFIDENCE: 0.4")
+        weather_provider = FakeWeatherProvider(WeatherContext(23.0, 23.0, 18.0, None, None, 10.9, None, None, 78.3, DataPrecision.DISTRICT))
+        soil_provider = FakeSoilMoistureProvider(45.0)
+
+        graph = CropAdvisorGraph(
+            llm_client=llm_client,
+            weather_provider=weather_provider,
+            soil_moisture_provider=soil_provider
+        ).build()
+
+        result = graph.invoke(agent_state)
+
+        assert result["confidence"] == 0.4
+        assert "agronomist" in result["recommendation"].lower() or "specialist" in result["recommendation"].lower()
