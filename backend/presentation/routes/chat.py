@@ -5,6 +5,7 @@ from presentation.dependencies.auth import get_current_user_id
 from application.agents.orchestrator_state import OrchestratorState
 from bootstrap import build_services
 from domain.regional_context import RegionalContext
+from typing import Optional
 
 router = APIRouter()
 
@@ -27,4 +28,16 @@ def _build_agent_state(request: ChatRequest) -> OrchestratorState:
                             routed_to        = None,
                             specialist_response = None,
                             lat              = request.lat,
-                            lon              = request.lon)
+                            lon              = request.lon,
+                            conversation_history=_fetch_conversation_history(request=request))
+
+def _fetch_conversation_history(request: ChatRequest) -> Optional[list]:
+    history = []
+    if request.conversation_id:
+        messages = build_services().postgres_conversation_repo.find_messages_by_session(request.conversation_id)
+        history = [
+            {"role": "assistant" if m.system_generated else "user", "content": m.content}
+            for m in messages[-10:]
+        ]
+    return history
+

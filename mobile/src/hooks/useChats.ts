@@ -142,6 +142,7 @@ export function useChats({ language = "EN", provinceState = "general", country =
                 language: language,
                 lat: null,
                 lon: null,
+                conversation_id: activeChatId,
             }),
         })
         const data = await res.json()

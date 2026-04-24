@@ -23,6 +23,7 @@ class AgentState(TypedDict):
     language: Language
     lat: Optional[float]
     lon: Optional[float]
+    conversation_history: Optional[list]
 
 def advise(agent_state: AgentState, llm_client: ILLMClient) -> AgentState:
     sanitise(agent_state["farmer_question"])
@@ -56,8 +57,9 @@ def _build_prompt(agent_state: AgentState) -> list:
     if soil_moisture is not None:
         context_parts.append(f"Soil moisture: {soil_moisture}%.")
 
+    history = agent_state.get("conversation_history") or []
     return [
         {"role": "system", "content": " ".join(context_parts)},
+        *history,
         {"role": "user", "content": f"Question: {farmer_question}"}
     ]
-

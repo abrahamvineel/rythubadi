@@ -13,6 +13,7 @@ class ChatRequest(BaseModel):
     producer_type: ProducerType
     language: Language
     image_url: Optional[str]
+    conversation_id: Optional[UUID] = None
     lat: Optional[float] = None
     lon: Optional[float] = None
     

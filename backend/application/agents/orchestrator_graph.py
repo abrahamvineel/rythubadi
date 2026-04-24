@@ -49,6 +49,7 @@ class OrchestratorGraph:
             tools_called    = [],
             lat             = state.get("lat"),
             lon             = state.get("lon"),
+            conversation_history = state.get("conversation_history") or []
         )
         result = self.crop_advisor_graph.invoke(advisor_input)
         answer = result["recommendation"]

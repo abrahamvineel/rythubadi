@@ -17,3 +17,4 @@ class OrchestratorState(TypedDict):
     specialist_response: Optional[str]
     lat: Optional[float]
     lon: Optional[float]
+    conversation_history: Optional[list]
