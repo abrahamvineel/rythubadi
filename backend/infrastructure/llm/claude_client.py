@@ -23,6 +23,7 @@ class ClaudeClient:
         kwargs = {"model": "claude-haiku-4-5-20251001", "max_tokens": 1024, "messages": user_messages}
         if system:
             kwargs["system"] = system
+            
         with client.messages.stream(**kwargs) as s:
                 for chunk in s.text_stream:
                     yield chunk
