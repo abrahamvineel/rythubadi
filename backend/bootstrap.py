@@ -33,6 +33,8 @@ class Services:
         orchestrator_graph: CompiledStateGraph
         postgres_user_repo: PostgresUserRepository
         postgres_conversation_repo: PostgresConversationRepository
+        weather_provider: OpenMeteoWeatherAdapter
+        soil_moisture_provider: StubSoilMoistureProvider
 
 @lru_cache
 def build_services():
@@ -65,10 +67,15 @@ def build_services():
 
         postgres_conversation_repo = PostgresConversationRepository(pool)
 
+        weather_provider = OpenMeteoWeatherAdapter()
+        soil_moisture_provider = StubSoilMoistureProvider()
+
         return Services(market_listing=market_listing, 
                         llm_client=llm_client,
                         crop_diagnosis_graph=crop_diagnosis_graph.build(), 
                         scheme_advisor_graph=scheme_advisor_graph.build(),
                         orchestrator_graph=orchestrator_graph.build(),
                         postgres_user_repo=postgres_user_repo,
-                        postgres_conversation_repo=postgres_conversation_repo)
+                        postgres_conversation_repo=postgres_conversation_repo,
+                        weather_provider=weather_provider,
+                        soil_moisture_provider=soil_moisture_provider)
