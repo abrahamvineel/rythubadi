@@ -55,16 +55,15 @@ def stream(request: ChatRequest,
         valid_set = ("crop_advisor", "crop_diagnosis", "scheme_advisor")
         sanitise(state["farmer_message"])
         region = RegionalContext(request.province_state, request.country)
-        routed_to = services.llm_client.generate(prompt).strip().lower()
+        classify_prompt  = [
+            {"role": "system", "content": "Classify the farmer's question. Reply with exactly one word: crop_advisor, crop_diagnosis, or scheme_advisor."},
+            {"role": "user", "content": state["farmer_message"]}
+            ]
+        routed_to = services.llm_client.generate(classify_prompt).strip().lower()        
         if routed_to not in valid_set: routed_to = "crop_advisor"
         if routed_to == "crop_advisor":
             weather = services.weather_provider.get_weather(region, lat=request.lat, lon=request.lon)
             soil = services.soil_moisture_provider.get_soil_moisture(region.province_state)
-            classify_prompt  = [
-            {"role": "system", "content": "Classify the farmer's question. Reply with exactly one word: crop_advisor, crop_diagnosis, or scheme_advisor."},
-            {"role": "user", "content": state["farmer_message"]}
-            ]
-            routed_to = services.llm_client.generate(classify_prompt).strip().lower()
             agent_state = AgentState(
                 farmer_question=request.message,
                 crop_type=request.crop_type,

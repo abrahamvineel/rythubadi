@@ -87,6 +87,18 @@ export function useChats({ language = "EN", provinceState = "general", country =
         ))
     }
 
+    function updateLastAssistantMessage(chatId: string, text: string) {
+        setChats(prev => prev.map(chat => {
+            if (chat.id !== chatId) return chat
+            const messages = [...chat.messages]
+            const lastIdx = messages.length - 1
+            if (lastIdx >= 0 && messages[lastIdx].role === "assistant") {
+                messages[lastIdx] = { ...messages[lastIdx], text }
+            }
+            return { ...chat, messages }
+        }))
+    }
+
     async function deleteChat(chatId: string) {
         try {
             await fetch(`${API_BASE}/conversations/${chatId}`, {
@@ -126,9 +138,12 @@ export function useChats({ language = "EN", provinceState = "general", country =
             body: JSON.stringify({ content: text, attachment_url: imageUrl ?? null, system_generated: false })
         })
 
+        const chatId = activeChatId
+        addMessage(chatId, { role: "assistant", text: "", timestamp: new Date().toISOString() })
+
         // GPS disabled until field-location onboarding is implemented
         // const gps = await getGps()
-        const res = await fetch(`${API_BASE}/chat`, {
+        const res = await fetch(`${API_BASE}/chat/stream`, {
             method: "POST",
             headers: authHeaders(),
             body: JSON.stringify({
@@ -145,18 +160,32 @@ export function useChats({ language = "EN", provinceState = "general", country =
                 conversation_id: activeChatId,
             }),
         })
-        const data = await res.json()
-        const assistantMsg: Message = { role: "assistant", text: data.specialist_response, timestamp: new Date().toISOString() }
-        addMessage(activeChatId, assistantMsg)
 
-        await fetch(`${API_BASE}/conversations/${activeChatId}/messages`, {
+        const reader = res.body!.getReader()
+        const decoder = new TextDecoder()
+        let fullText = ""
+
+        while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            const raw = decoder.decode(value, { stream: true })
+            for (const line of raw.split("\n")) {
+                if (!line.startsWith("data: ")) continue
+                const chunk = line.slice(6)
+                if (chunk === "[DONE]") break
+                fullText += chunk
+                updateLastAssistantMessage(chatId, fullText)
+            }
+        }
+
+        await fetch(`${API_BASE}/conversations/${chatId}/messages`, {
             method: "POST",
             headers: authHeaders(),
-            body: JSON.stringify({ content: data.specialist_response, system_generated: true })
+            body: JSON.stringify({ content: fullText, system_generated: true })
         })
 
         setIsLoading(false)
-        return data.specialist_response
+        return fullText
     }
 
     async function selectChat(chatId: string) {
