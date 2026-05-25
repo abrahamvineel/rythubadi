@@ -79,7 +79,7 @@ class PostgresConversationRepository:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute(
                     "SELECT chat_session_id, content, attachment_url, system_generated, language "
-                    "FROM chat_message WHERE chat_session_id = %s ORDER BY created_at ASC",
+                    "FROM chat_message WHERE chat_session_id = %s ORDER BY created_at DESC LIMT 10",
                     (str(session_id),)
                 )
                 rows = cur.fetchall()

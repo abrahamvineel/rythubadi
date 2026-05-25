@@ -41,7 +41,7 @@ def _fetch_conversation_history(request: ChatRequest) -> Optional[list]:
         messages = build_services().postgres_conversation_repo.find_messages_by_session(request.conversation_id)
         history = [
             {"role": "assistant" if m.system_generated else "user", "content": m.content}
-            for m in messages[-10:]
+            for m in messages
         ]
     return history
 

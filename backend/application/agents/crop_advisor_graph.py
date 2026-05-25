@@ -24,9 +24,27 @@ class CropAdvisorGraph:
         return {**result, "data_disclaimer": data_disclaimer}
 
     def _route_node(self, state: AgentState) -> str:
-        if state["confidence"] >= 0.7:
+        # Safety Guard 1: Prevent infinite LLM tool-calling loops
+        loop_count = state.get("loop_count") or 0
+        if loop_count > 3:
+            return "agronomist"
+        next_action = state.get("next_action")
+        tools_called = state.get("tools_called") or []
+        # Safety Guard 2: Detect repetitive tool calling (e.g. LLM getting stuck calling the same tool)
+        if next_action in ("weather", "soil_moisture") and next_action in tools_called:
+            return "agronomist"
+        # Route to tools
+        if next_action == "weather":
+            return "weather"
+        elif next_action == "soil_moisture":
+            return "soil_moisture"
+        
+        # Parse final response routing
+        confidence = state.get("confidence") or 0.0
+        if confidence >= 0.7:
             return "end"
         return "agronomist"
+
     
     def _fetch_weather_node(self, state: AgentState) -> AgentState:
         result = self._weather_provider.get_weather(state["region"], lat=state.get("lat"), lon=state.get("lon"))
@@ -46,10 +64,24 @@ class CropAdvisorGraph:
         graph.add_node("fetch_weather", self._fetch_weather_node)
         graph.add_node("fetch_soil", self._fetch_soil_node)
         graph.add_node("agronomist", self._agronomist_node)
-        graph.set_entry_point("fetch_weather")
-        graph.add_edge("fetch_weather", "fetch_soil")
+        
+        # 1. Entry point is now 'advise' (LLM decides if it needs data first)
+        graph.set_entry_point("advise")
+        
+        # 2. Dynamic routing based on next_action and safety checks
+        graph.add_conditional_edges("advise", self._route_node, {
+            "weather": "fetch_weather",
+            "soil_moisture": "fetch_soil",
+            "agronomist": "agronomist",
+            "end": END
+        })
+        
+        # 3. Tool nodes loop back to 'advise' for the next reasoning turn
+        graph.add_edge("fetch_weather", "advise")
         graph.add_edge("fetch_soil", "advise")
-        graph.add_conditional_edges("advise", self._route_node, {"end": END, "agronomist": "agronomist"})
+        
+        # 4. Fallback specialist node routes to completion
         graph.add_edge("agronomist", END)
+        
         return graph.compile()
     
