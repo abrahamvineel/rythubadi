@@ -74,3 +74,7 @@ class EmptyReasonError(Exception):
 class NoContactMethodError(Exception):
         """Raise when no contact method"""
         pass
+
+class SensorReadingTimeZoneError(Exception):
+        """Raise when timezone is incorrect on sensor reading"""
+        pass
