@@ -12,6 +12,7 @@ from typing import Optional
 class SensorReading:
     producer_id: UUID
     producer_type: ProducerType
+    province_state: str
     measurements: tuple[SensorMeasurement, ...]
     data_precision: DataPrecision
     recorded_at: datetime
