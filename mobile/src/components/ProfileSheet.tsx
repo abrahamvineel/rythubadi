@@ -15,9 +15,10 @@ type Props = {
     visible: boolean
     token: string | null
     onClose: () => void
+    onLogout?: () => void
 }
 
-export function ProfileSheet({ visible, token, onClose }: Props) {
+export function ProfileSheet({ visible, token, onClose, onLogout }: Props) {
     // ── Producer types ────────────────────────────────────────────────────────
     const [currentTypes, setCurrentTypes] = useState<string[]>([])
     const [pendingAdd, setPendingAdd] = useState<string[]>([])
@@ -248,6 +249,29 @@ export function ProfileSheet({ visible, token, onClose }: Props) {
                         </>
                     )}
 
+                    {/* ── Logout section ── */}
+                    {onLogout && (
+                        <>
+                            <View style={styles.divider} />
+                            <TouchableOpacity
+                                style={styles.logoutButton}
+                                onPress={() => {
+                                    Alert.alert(
+                                        "Log out?",
+                                        "You'll need to sign in again to access your farm data.",
+                                        [
+                                            { text: "Cancel", style: "cancel" },
+                                            { text: "Log out", style: "destructive", onPress: () => { onClose(); onLogout() } },
+                                        ],
+                                    )
+                                }}
+                                activeOpacity={0.8}
+                            >
+                                <Text style={styles.logoutText}>⏻  Log out</Text>
+                            </TouchableOpacity>
+                        </>
+                    )}
+
                     {/* Bottom spacer so last item isn't flush with edge */}
                     <View style={{ height: 16 }} />
                 </ScrollView>
@@ -335,4 +359,14 @@ const styles = StyleSheet.create({
     addLocButtonDone: { backgroundColor: "#4CAF50" },
     addLocText: { color: "#fff", fontWeight: "700", fontSize: 14 },
     addLocError: { color: "#ffcdd2", fontSize: 12, marginTop: 4 },
+
+    logoutButton: {
+        borderRadius: 12,
+        paddingVertical: 14,
+        alignItems: "center",
+        borderWidth: 1.5,
+        borderColor: "#FFCDD2",
+        backgroundColor: "#FFF5F5",
+    },
+    logoutText: { color: "#C62828", fontSize: 15, fontWeight: "700" },
 })

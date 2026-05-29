@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rythu — Design Mockup</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#1a1a2e;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:24px;gap:32px;flex-wrap:wrap}
+h2{color:#fff;font-size:13px;font-weight:600;letter-spacing:1px;text-align:center;margin-bottom:12px;opacity:.6}
+
+.phone{width:390px;height:844px;background:#F4F9F4;border-radius:48px;box-shadow:0 0 0 2px #555,0 0 0 7px #333,0 30px 80px rgba(0,0,0,.6);overflow:hidden;position:relative;display:flex;flex-direction:column;flex-shrink:0}
+
+/* status bar */
+.sb{background:#1B5E20;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;flex-shrink:0}
+.sb .t{color:#fff;font-size:15px;font-weight:700}
+.sb .i{color:#fff;font-size:13px;display:flex;align-items:center;gap:6px}
+
+/* screens */
+.sc{display:none;flex:1;flex-direction:column;overflow:hidden;animation:fi .2s ease}
+.sc.on{display:flex}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* header */
+.hd{background:#1B5E20;padding:14px 20px 16px;flex-shrink:0}
+.hd-row{display:flex;align-items:center;justify-content:space-between}
+.hd h1{color:#fff;font-size:20px;font-weight:800;letter-spacing:.3px}
+.hd p{color:#A5D6A7;font-size:12px;margin-top:2px}
+.hd-btn{background:rgba(255,255,255,.15);border:none;border-radius:20px;padding:6px 12px;color:#fff;font-size:13px;cursor:pointer;font-weight:600}
+.back{display:flex;align-items:center;gap:4px;background:none;border:none;color:#A5D6A7;font-size:13px;cursor:pointer;margin-bottom:6px;padding:0;font-family:inherit}
+
+/* scroll */
+.sv{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.sv::-webkit-scrollbar{display:none}
+
+/* ─── FEED ─── */
+.f-alert{background:#FFEBEE;margin:12px 16px 0;border-radius:12px;padding:11px 14px;border:1.5px solid #FFCDD2;display:flex;align-items:center;gap:10px}
+.f-alert .fa-i{font-size:18px}
+.f-alert .fa-t{flex:1;font-size:13px;color:#B71C1C;font-weight:700}
+.f-alert .fa-b{background:#E53935;color:#fff;border-radius:10px;padding:2px 8px;font-size:11px;font-weight:700}
+
+.fl{padding:12px 16px;display:flex;flex-direction:column;gap:11px}
+.fdiv{display:flex;align-items:center;gap:10px;margin:2px 0}
+.fdiv span{color:#999;font-size:10px;font-weight:700;letter-spacing:.8px;white-space:nowrap}
+.fdiv::before,.fdiv::after{content:'';flex:1;height:1px;background:#D8EDD8}
+
+.fc{background:#fff;border-radius:16px;padding:14px;box-shadow:0 1px 6px rgba(0,0,0,.06);border-left:4px solid #4CAF50}
+.fc.w{border-left-color:#FFA726}
+.fc.r{border-left-color:#E53935}
+.fc-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.av{width:32px;height:32px;border-radius:16px;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.av.w{background:#FFF3E0}
+.av.r{background:#FFEBEE}
+.an{font-size:13px;font-weight:700;color:#1B5E20;flex:1}
+.an.w{color:#BF360C}
+.an.r{color:#B71C1C}
+.ct{font-size:11px;color:#bbb}
+.cb{font-size:13.5px;color:#333;line-height:1.55;margin-bottom:10px}
+.ca{display:flex;gap:7px;flex-wrap:wrap}
+.btn{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:inherit}
+.btn.p{background:#2E7D32;color:#fff}
+.btn.s{background:#E8F5E9;color:#2E7D32}
+.btn.wa{background:#FFF3E0;color:#E65100}
+.btn.da{background:#FFEBEE;color:#C62828}
+.cr{font-size:12px;color:#aaa;margin-top:8px;padding-top:8px;border-top:1px solid #F0F0F0}
+
+.f-in{background:#fff;padding:10px 16px;border-top:1px solid #E8F5E9;display:flex;gap:8px;align-items:center;flex-shrink:0}
+.f-in input{flex:1;background:#F4F9F4;border:1.5px solid #C8E6C9;border-radius:22px;padding:10px 16px;font-size:14px;color:#1A3A1A;outline:none;font-family:inherit}
+.f-in button{background:#2E7D32;color:#fff;border:none;border-radius:22px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+
+/* ─── MONITOR ─── */
+.mc{padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.m-strip{background:#FFEBEE;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;border:1.5px solid #FFCDD2}
+.m-strip span{font-size:13px;color:#B71C1C;font-weight:700;flex:1}
+.dot{width:8px;height:8px;background:#E53935;border-radius:4px;animation:p 1.5s infinite;flex-shrink:0}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.25}}
+
+.op{background:#fff;border-radius:16px;box-shadow:0 1px 5px rgba(0,0,0,.07);overflow:hidden;cursor:pointer}
+.op:active{opacity:.9}
+.op-hd{padding:14px 16px;display:flex;align-items:center;gap:12px}
+.op-em{font-size:28px}
+.op-inf{flex:1}
+.op-t{font-size:15px;font-weight:700;color:#1A3A1A}
+.op-s{font-size:11px;color:#888;margin-top:1px}
+.badge{border-radius:12px;padding:4px 10px;font-size:11px;font-weight:700}
+.badge.ok{background:#E8F5E9;color:#2E7D32}
+.badge.w{background:#FFF3E0;color:#E65100}
+.badge.r{background:#FFEBEE;color:#C62828}
+.arr{color:#ccc;font-size:18px}
+.op-bar{margin:0 16px 14px}
+.bt{height:6px;background:#F0F0F0;border-radius:3px;overflow:hidden}
+.bf{height:100%;border-radius:3px}
+.bf.ok{background:#4CAF50}
+.bf.w{background:#FFA726}
+.bl{font-size:10px;color:#999;margin-top:4px;display:flex;justify-content:space-between}
+
+.env-t{font-size:11px;font-weight:700;color:#999;letter-spacing:.8px;margin-bottom:7px}
+.env-g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ec{background:#fff;border-radius:14px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.ec.r{border:1.5px solid #FFCDD2;background:#FFEBEE}
+.ec-l{font-size:11px;color:#888;margin-bottom:4px}
+.ec-v{font-size:22px;font-weight:800;color:#1A3A1A}
+.ec.r .ec-v{color:#C62828}
+.ec-s{font-size:11px;margin-top:3px}
+.ec-s.ok{color:#2E7D32}
+.ec-s.r{color:#E53935}
+
+/* ─── HERD ─── */
+.hs{background:#E8F5E9;margin:12px 16px;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:0}
+.hs-b{font-size:30px;font-weight:800;color:#1B5E20;min-width:40px}
+.hs-l{font-size:11px;color:#666}
+.hs-dv{width:1px;height:36px;background:#C8E6C9;margin:0 16px}
+
+.sl{font-size:10px;font-weight:700;color:#999;letter-spacing:.8px;padding:6px 16px 4px}
+.al{padding:0 16px 8px;display:flex;flex-direction:column;gap:7px}
+.ar{background:#fff;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;border-left:4px solid transparent}
+.ar.ok{border-left-color:#4CAF50}
+.ar.w{border-left-color:#FFA726}
+.ar.r{border-left-color:#E53935}
+.ar:active{opacity:.85}
+.a-ic{font-size:24px}
+.a-in{flex:1}
+.a-nm{font-size:14px;font-weight:700;color:#1A3A1A}
+.a-dt{font-size:12px;color:#999;margin-top:2px}
+.a-dt.w{color:#E65100;font-weight:600}
+.a-dt.r{color:#C62828;font-weight:700}
+.a-tmp{font-size:17px;font-weight:800}
+.a-tmp.ok{color:#2E7D32}
+.a-tmp.w{color:#E65100}
+.a-tmp.r{color:#E53935}
+.more{padding:10px 12px;text-align:center;color:#aaa;font-size:13px}
+
+/* ─── ANIMAL ─── */
+.a-hero{background:#1B5E20;padding:16px 20px 20px;flex-shrink:0}
+.a-hero-nm{color:#fff;font-size:24px;font-weight:800;margin-bottom:2px}
+.a-hero-tg{color:#A5D6A7;font-size:13px}
+.a-hero-meta{display:flex;gap:0;margin-top:14px}
+.a-m{flex:1}
+.a-m-l{color:#81C784;font-size:10px;font-weight:700;letter-spacing:.5px}
+.a-m-v{color:#fff;font-size:14px;font-weight:700;margin-top:2px}
+
+.sc-cards{padding:12px 16px;display:flex;flex-direction:column;gap:10px}
+.sc-c{background:#fff;border-radius:16px;padding:14px;box-shadow:0 1px 5px rgba(0,0,0,.07)}
+.sc-c.r{border:1.5px solid #FFCDD2;background:#FFFAFA}
+.sc-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sc-nm{font-size:13px;color:#666;font-weight:700}
+.sc-st{font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px}
+.sc-st.ok{background:#E8F5E9;color:#2E7D32}
+.sc-st.r{background:#FFEBEE;color:#C62828}
+.sc-st.w{background:#FFF3E0;color:#E65100}
+.sc-v{font-size:34px;font-weight:800;color:#1A3A1A}
+.sc-v.r{color:#E53935}
+.sc-v span{font-size:15px;font-weight:400;color:#aaa}
+.chart{height:52px;margin:10px 0 4px;border-radius:8px;overflow:hidden}
+.ct-lb{display:flex;justify-content:space-between}
+.ct-lb span{font-size:10px;color:#ccc}
+.ask-btn{background:#2E7D32;color:#fff;border:none;border-radius:14px;padding:15px;width:100%;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit;margin-top:4px}
+
+/* ─── CHATS ─── */
+.ch-hd{background:#fff;padding:12px 16px;border-bottom:1px solid #E8F5E9;flex-shrink:0}
+.srch{background:#F4F9F4;border:1.5px solid #E0EDE0;border-radius:22px;padding:10px 16px;font-size:14px;color:#999;display:flex;align-items:center;gap:8px}
+.nc-btn{background:#2E7D32;color:#fff;border:none;border-radius:12px;padding:12px 16px;font-size:14px;font-weight:700;cursor:pointer;margin:12px 16px 0;display:flex;align-items:center;justify-content:center;gap:6px;font-family:inherit;width:calc(100% - 32px)}
+.cl{padding:8px 16px;display:flex;flex-direction:column}
+.ci{padding:14px 4px;cursor:pointer}
+.ci:active{opacity:.75}
+.ci-t{font-size:14px;font-weight:700;color:#1A3A1A;margin-bottom:4px}
+.ci-m{display:flex;align-items:center;justify-content:space-between}
+.ci-p{font-size:12px;color:#999;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px}
+.ci-d{font-size:11px;color:#ccc;white-space:nowrap}
+.cdiv{height:1px;background:#F0F0F0}
+
+/* ─── TAB BAR ─── */
+.tb{background:#fff;border-top:1px solid #E8F5E9;display:flex;padding:8px 0 20px;flex-shrink:0}
+.ti{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;border:none;background:none;font-family:inherit}
+.ti-ic{font-size:22px;position:relative;display:inline-block}
+.ti-lb{font-size:10px;color:#bbb;font-weight:500}
+.ti.on .ti-lb{color:#2E7D32;font-weight:700}
+.tbadge{position:absolute;top:-5px;right:-8px;background:#E53935;color:#fff;border-radius:8px;padding:1px 5px;font-size:9px;font-weight:700}
+</style>
+</head>
+<body>
+
+<div>
+<h2>TAP TO NAVIGATE</h2>
+<div class="phone">
+
+  <!-- STATUS BAR -->
+  <div class="sb">
+    <span class="t">9:41</span>
+    <div class="i"><span>●●●</span><span>WiFi</span><span>■■■</span></div>
+  </div>
+
+  <!-- ══ FEED ══ -->
+  <div class="sc on" id="s-feed">
+    <div class="hd">
+      <div class="hd-row">
+        <div><h1>🌿 Farm Feed</h1><p>3 updates today</p></div>
+        <button class="hd-btn">👤</button>
+      </div>
+    </div>
+    <div class="f-alert">
+      <span class="fa-i">🚨</span>
+      <span class="fa-t">Bessie #247 temp critical — 35.1°C</span>
+      <span class="fa-b">1 alert</span>
+    </div>
+    <div class="sv">
+      <div class="fl">
+        <div class="fdiv"><span>TODAY · 6:00 AM</span></div>
+
+        <div class="fc">
+          <div class="fc-hd">
+            <div class="av">🌾</div>
+            <span class="an">CropAdvisor</span>
+            <span class="ct">6:00 AM</span>
+          </div>
+          <div class="cb">Morning update: Soil moisture at 38%. Rain expected by 3 PM — hold off on irrigation today. Wheat in Field A is at tillering stage and on track.</div>
+          <div class="ca">
+            <button class="btn s">Reply</button>
+            <button class="btn s">View Field</button>
+          </div>
+        </div>
+
+        <div class="fdiv"><span>10:12 AM</span></div>
+
+        <div class="fc w">
+          <div class="fc-hd">
+            <div class="av w">🐄</div>
+            <span class="an w">CattleAdvisor</span>
+            <span class="ct">10:12 AM</span>
+          </div>
+          <div class="cb">⚠ Daisy (#128) water intake 22% below yesterday's average. Activity also slightly reduced. Check water trough at Station 2 — may be blocked.</div>
+          <div class="ca">
+            <button class="btn p">Ask Advisor</button>
+            <button class="btn wa">View Daisy</button>
+            <button class="btn s">Done</button>
+          </div>
+          <div class="cr">💬 2 replies · last 1 hour ago</div>
+        </div>
+
+        <div class="fdiv"><span>2:47 PM</span></div>
+
+        <div class="fc r">
+          <div class="fc-hd">
+            <div class="av r">🐄</div>
+            <span class="an r">CattleAdvisor</span>
+            <span class="ct">2:47 PM</span>
+          </div>
+          <div class="cb">🚨 Bessie (#247) body temperature dropped to 35.1°C — 2.3° below normal for her breed. Activity also low since 6 AM. Early signs consistent with BRD. Recommend veterinary check today.</div>
+          <div class="ca">
+            <button class="btn p">Ask Advisor</button>
+            <button class="btn da">View Bessie</button>
+          </div>
+          <div class="cr">💬 3 replies · last 5 min ago</div>
+        </div>
+
+        <div class="fdiv"><span>NEXT UPDATE · 6:00 PM</span></div>
+      </div>
+    </div>
+    <div class="f-in">
+      <input placeholder="Ask your advisor anything…">
+      <button>Send</button>
+    </div>
+  </div>
+
+  <!-- ══ MONITOR ══ -->
+  <div class="sc" id="s-monitor">
+    <div class="hd">
+      <div class="hd-row">
+        <div><h1>📊 Live Monitor</h1><p>Updated 12 seconds ago</p></div>
+        <button class="hd-btn">↺</button>
+      </div>
+    </div>
+    <div class="sv">
+      <div class="mc">
+        <div class="m-strip">
+          <div class="dot"></div>
+          <span>3 animals need attention now</span>
+          <span style="font-size:12px;color:#C62828;font-weight:700;cursor:pointer">View All</span>
+        </div>
+
+        <div class="op" onclick="show('s-herd')">
+          <div class="op-hd">
+            <span class="op-em">🐄</span>
+            <div class="op-inf">
+              <div class="op-t">Cattle</div>
+              <div class="op-s">50 animals · Station Farm</div>
+            </div>
+            <span class="badge r">2 critical</span>
+            <span class="arr">›</span>
+          </div>
+          <div class="op-bar">
+            <div class="bt"><div class="bf ok" style="width:96%"></div></div>
+            <div class="bl"><span>48 normal</span><span>2 flagged 🔴</span></div>
+          </div>
+        </div>
+
+        <div class="op" onclick="show('s-poultry')">
+          <div class="op-hd">
+            <span class="op-em">🐔</span>
+            <div class="op-inf">
+              <div class="op-t">Poultry</div>
+              <div class="op-s">312 birds · Shed A, B, C</div>
+            </div>
+            <span class="badge w">1 warning</span>
+            <span class="arr">›</span>
+          </div>
+          <div class="op-bar">
+            <div class="bt"><div class="bf w" style="width:99.7%"></div></div>
+            <div class="bl"><span>311 normal</span><span>1 flagged 🟡</span></div>
+          </div>
+        </div>
+
+        <div class="op">
+          <div class="op-hd">
+            <span class="op-em">🐟</span>
+            <div class="op-inf">
+              <div class="op-t">Fish</div>
+              <div class="op-s">2 ponds · 840 tagged fish</div>
+            </div>
+            <span class="badge ok">All normal</span>
+            <span class="arr">›</span>
+          </div>
+          <div class="op-bar">
+            <div class="bt"><div class="bf ok" style="width:100%"></div></div>
+            <div class="bl"><span>pH 7.2 ✓  O₂ 8.4 mg/L ✓</span><span>All normal</span></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="env-t">ENVIRONMENT</div>
+          <div class="env-g">
+            <div class="ec">
+              <div class="ec-l">💧 Soil Moisture</div>
+              <div class="ec-v">38%</div>
+              <div class="ec-s ok">● Good</div>
+            </div>
+            <div class="ec r">
+              <div class="ec-l">🌡 Shed B Temp</div>
+              <div class="ec-v">18°C</div>
+              <div class="ec-s r">▼ Too low</div>
+            </div>
+            <div class="ec">
+              <div class="ec-l">🌤 Weather</div>
+              <div class="ec-v">18°C</div>
+              <div class="ec-s ok">🌧 Rain at 3PM</div>
+            </div>
+            <div class="ec">
+              <div class="ec-l">💨 Wind</div>
+              <div class="ec-v">12</div>
+              <div class="ec-s ok">km/h · Normal</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ HERD VIEW ══ -->
+  <div class="sc" id="s-herd">
+    <div class="hd">
+      <div class="hd-row" style="align-items:flex-start">
+        <div>
+          <button class="back" onclick="show('s-monitor')">‹ Monitor</button>
+          <h1>🐄 Cattle Herd</h1>
+          <p>50 animals · Station Farm</p>
+        </div>
+        <button class="hd-btn">+ Add</button>
+      </div>
+    </div>
+    <div class="sv">
+      <div class="hs">
+        <div><div class="hs-b">48</div><div class="hs-l">Normal</div></div>
+        <div class="hs-dv"></div>
+        <div><div class="hs-b" style="color:#E65100">1</div><div class="hs-l">Warning</div></div>
+        <div class="hs-dv"></div>
+        <div><div class="hs-b" style="color:#E53935">1</div><div class="hs-l">Critical</div></div>
+      </div>
+
+      <div class="sl">NEEDS ATTENTION</div>
+      <div class="al">
+        <div class="ar r" onclick="show('s-animal')">
+          <span class="a-ic">🐄</span>
+          <div class="a-in">
+            <div class="a-nm">Bessie <span style="color:#bbb;font-weight:400;font-size:12px">#247</span></div>
+            <div class="a-dt r">Temp 35.1°C ▼ · Activity low · Possible BRD</div>
+          </div>
+          <div class="a-tmp r">35.1°</div>
+        </div>
+        <div class="ar w" onclick="show('s-animal')">
+          <span class="a-ic">🐄</span>
+          <div class="a-in">
+            <div class="a-nm">Daisy <span style="color:#bbb;font-weight:400;font-size:12px">#128</span></div>
+            <div class="a-dt w">Water intake 22% below avg · Check trough</div>
+          </div>
+          <div class="a-tmp w">37.1°</div>
+        </div>
+      </div>
+
+      <div class="sl">NORMAL · 48 ANIMALS</div>
+      <div class="al">
+        <div class="ar ok">
+          <span class="a-ic">🐄</span>
+          <div class="a-in">
+            <div class="a-nm">Moo <span style="color:#bbb;font-weight:400;font-size:12px">#339</span></div>
+            <div class="a-dt">37.4°C · Activity normal · Milk 21.2L ✓</div>
+          </div>
+          <div class="a-tmp ok">37.4°</div>
+        </div>
+        <div class="ar ok">
+          <span class="a-ic">🐄</span>
+          <div class="a-in">
+            <div class="a-nm">Clover <span style="color:#bbb;font-weight:400;font-size:12px">#12</span></div>
+            <div class="a-dt">37.2°C · Rumination normal</div>
+          </div>
+          <div class="a-tmp ok">37.2°</div>
+        </div>
+        <div class="ar ok">
+          <span class="a-ic">🐄</span>
+          <div class="a-in">
+            <div class="a-nm">Rosie <span style="color:#bbb;font-weight:400;font-size:12px">#88</span></div>
+            <div class="a-dt">37.6°C · Heart rate 64 bpm ✓</div>
+          </div>
+          <div class="a-tmp ok">37.6°</div>
+        </div>
+        <div class="more">+ 45 more normal animals</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ANIMAL DETAIL ══ -->
+  <div class="sc" id="s-animal">
+    <div class="a-hero">
+      <button class="back" onclick="show('s-herd')">‹ Cattle</button>
+      <div class="a-hero-nm">🐄 Bessie</div>
+      <div class="a-hero-tg">Tag #247 · Holstein · Paddock 3</div>
+      <div class="a-hero-meta">
+        <div class="a-m"><div class="a-m-l">AGE</div><div class="a-m-v">4 years</div></div>
+        <div class="a-m"><div class="a-m-l">WEIGHT</div><div class="a-m-v">612 kg</div></div>
+        <div class="a-m"><div class="a-m-l">STATUS</div><div class="a-m-v" style="color:#FF8A80">🔴 Critical</div></div>
+      </div>
+    </div>
+    <div class="sv">
+      <div class="sc-cards">
+
+        <div class="sc-c r">
+          <div class="sc-hd">
+            <span class="sc-nm">🌡 Body Temperature</span>
+            <span class="sc-st r">CRITICAL</span>
+          </div>
+          <div class="sc-v r">35.1 <span>°C  ▼ 2.3° below normal</span></div>
+          <div class="chart">
+            <svg width="100%" height="52" viewBox="0 0 340 52" preserveAspectRatio="none">
+              <defs><linearGradient id="rg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFCDD2"/><stop offset="100%" stop-color="transparent"/></linearGradient></defs>
+              <polygon points="0,52 0,8 60,7 120,6 180,8 230,14 270,28 310,40 340,48 340,52" fill="url(#rg)"/>
+              <polyline points="0,8 60,7 120,6 180,8 230,14 270,28 310,40 340,48" fill="none" stroke="#E53935" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="ct-lb"><span>−12h</span><span>−6h</span><span>−3h</span><span>Now</span></div>
+        </div>
+
+        <div class="sc-c">
+          <div class="sc-hd">
+            <span class="sc-nm">❤ Heart Rate</span>
+            <span class="sc-st ok">NORMAL</span>
+          </div>
+          <div class="sc-v">68 <span>bpm</span></div>
+          <div class="chart">
+            <svg width="100%" height="52" viewBox="0 0 340 52" preserveAspectRatio="none">
+              <defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#C8E6C9"/><stop offset="100%" stop-color="transparent"/></linearGradient></defs>
+              <polygon points="0,52 0,26 60,22 120,28 180,24 240,26 300,23 340,25 340,52" fill="url(#gg)"/>
+              <polyline points="0,26 60,22 120,28 180,24 240,26 300,23 340,25" fill="none" stroke="#4CAF50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="ct-lb"><span>−12h</span><span>−6h</span><span>−3h</span><span>Now</span></div>
+        </div>
+
+        <div class="sc-c">
+          <div class="sc-hd">
+            <span class="sc-nm">🚶 Activity Level</span>
+            <span class="sc-st w">LOW SINCE 6AM</span>
+          </div>
+          <div class="sc-v" style="color:#E65100;font-size:24px">Low <span>· normally High</span></div>
+          <div class="chart">
+            <svg width="100%" height="52" viewBox="0 0 340 52" preserveAspectRatio="none">
+              <defs><linearGradient id="og" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFE0B2"/><stop offset="100%" stop-color="transparent"/></linearGradient></defs>
+              <polygon points="0,52 0,10 60,12 110,14 140,22 170,34 210,40 260,44 310,46 340,47 340,52" fill="url(#og)"/>
+              <polyline points="0,10 60,12 110,14 140,22 170,34 210,40 260,44 310,46 340,47" fill="none" stroke="#FFA726" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="ct-lb"><span>−12h</span><span>−6h</span><span>−3h</span><span>Now</span></div>
+        </div>
+
+        <div class="sc-c">
+          <div class="sc-hd">
+            <span class="sc-nm">🥛 Milk Yield</span>
+            <span class="sc-st ok">NORMAL</span>
+          </div>
+          <div class="sc-v">18.2 <span>L today · avg 19.1L</span></div>
+        </div>
+
+        <button class="ask-btn">🌾  Ask CattleAdvisor about Bessie</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ POULTRY HERD ══ -->
+  <div class="sc" id="s-poultry">
+    <div class="hd">
+      <div class="hd-row" style="align-items:flex-start">
+        <div>
+          <button class="back" onclick="show('s-monitor')">‹ Monitor</button>
+          <h1>🐔 Poultry</h1>
+          <p>312 birds · Shed A, B, C</p>
+        </div>
+        <button class="hd-btn">+ Add</button>
+      </div>
+    </div>
+    <div class="sv">
+      <div class="hs">
+        <div><div class="hs-b">311</div><div class="hs-l">Normal</div></div>
+        <div class="hs-dv"></div>
+        <div><div class="hs-b" style="color:#E65100">1</div><div class="hs-l">Warning</div></div>
+        <div class="hs-dv"></div>
+        <div><div class="hs-b" style="color:#aaa">0</div><div class="hs-l">Critical</div></div>
+      </div>
+
+      <div class="sl">NEEDS ATTENTION</div>
+      <div class="al">
+        <div class="ar w">
+          <span class="a-ic">🐔</span>
+          <div class="a-in">
+            <div class="a-nm">Hen <span style="color:#bbb;font-weight:400;font-size:12px">#R-041 · Shed B Row 3</span></div>
+            <div class="a-dt w">Weight 18% below flock average · Egg output low</div>
+          </div>
+          <div class="a-tmp w">⚠</div>
+        </div>
+      </div>
+
+      <div class="sl">SHED ENVIRONMENT</div>
+      <div class="al">
+        <div class="ar r" style="cursor:default">
+          <span class="a-ic">🌡</span>
+          <div class="a-in">
+            <div class="a-nm">Shed B Temperature</div>
+            <div class="a-dt r">18°C — target is 24–26°C · Heating needed</div>
+          </div>
+          <div class="a-tmp r">18°</div>
+        </div>
+        <div class="ar ok" style="cursor:default">
+          <span class="a-ic">💧</span>
+          <div class="a-in">
+            <div class="a-nm">Shed A Humidity</div>
+            <div class="a-dt">65% · Normal range 60–70%</div>
+          </div>
+          <div class="a-tmp ok" style="font-size:13px">65%</div>
+        </div>
+      </div>
+
+      <div class="sl">NORMAL · 311 BIRDS</div>
+      <div class="al">
+        <div class="ar ok" style="cursor:default">
+          <span class="a-ic">🐔</span>
+          <div class="a-in">
+            <div class="a-nm">Shed A · 104 birds</div>
+            <div class="a-dt">All sensors normal · Avg weight 2.1kg</div>
+          </div>
+          <div class="a-tmp ok" style="font-size:13px">✓</div>
+        </div>
+        <div class="ar ok" style="cursor:default">
+          <span class="a-ic">🐔</span>
+          <div class="a-in">
+            <div class="a-nm">Shed C · 104 birds</div>
+            <div class="a-dt">All sensors normal · Avg weight 2.3kg</div>
+          </div>
+          <div class="a-tmp ok" style="font-size:13px">✓</div>
+        </div>
+        <div class="more">+ 103 more in Shed B (normal)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ CHATS ══ -->
+  <div class="sc" id="s-chats">
+    <div class="hd">
+      <div class="hd-row">
+        <div><h1>💬 Conversations</h1><p>Advisory history</p></div>
+        <button class="hd-btn">+ New</button>
+      </div>
+    </div>
+    <div class="ch-hd">
+      <div class="srch">🔍  Search conversations…</div>
+    </div>
+    <div class="sv">
+      <div class="cl">
+        <div class="ci"><div class="ci-t">What fertiliser for wheat in clay soil?</div><div class="ci-m"><span class="ci-p">Recommended NPK 20-10-10 at tillering stage…</span><span class="ci-d">Today</span></div></div>
+        <div class="cdiv"></div>
+        <div class="ci"><div class="ci-t">Government schemes for cattle farmers</div><div class="ci-m"><span class="ci-p">3 schemes you may be eligible for in Canada…</span><span class="ci-d">Mon</span></div></div>
+        <div class="cdiv"></div>
+        <div class="ci"><div class="ci-t">Organic pest control for tomatoes</div><div class="ci-m"><span class="ci-p">Neem oil spray every 7 days is effective for…</span><span class="ci-d">Last week</span></div></div>
+        <div class="cdiv"></div>
+        <div class="ci"><div class="ci-t">BRD symptoms and treatment guide</div><div class="ci-m"><span class="ci-p">Bovine respiratory disease early signs include…</span><span class="ci-d">Last week</span></div></div>
+        <div class="cdiv"></div>
+        <div class="ci"><div class="ci-t">Best cover crops for Ontario winter</div><div class="ci-m"><span class="ci-p">Winter rye and hairy vetch work well in your region…</span><span class="ci-d">2 wks ago</span></div></div>
+        <div class="cdiv"></div>
+        <div class="ci"><div class="ci-t">Fish pond water quality management</div><div class="ci-m"><span class="ci-p">Keep dissolved oxygen above 6 mg/L and pH between…</span><span class="ci-d">3 wks ago</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tb">
+    <button class="ti on" id="t-feed" onclick="tab('feed')">
+      <span class="ti-ic">🌿</span>
+      <span class="ti-lb">Feed</span>
+    </button>
+    <button class="ti" id="t-monitor" onclick="tab('monitor')">
+      <span class="ti-ic" style="position:relative;display:inline-block">📊<span class="tbadge">3</span></span>
+      <span class="ti-lb">Monitor</span>
+    </button>
+    <button class="ti" id="t-chats" onclick="tab('chats')">
+      <span class="ti-ic">💬</span>
+      <span class="ti-lb">Chats</span>
+    </button>
+  </div>
+
+</div><!-- /phone -->
+</div><!-- /col -->
+
+<script>
+const SCREENS = ['s-feed','s-monitor','s-herd','s-animal','s-poultry','s-chats']
+const TABS = ['feed','monitor','chats']
+
+function show(id) {
+  SCREENS.forEach(s => document.getElementById(s).classList.remove('on'))
+  document.getElementById(id).classList.add('on')
+}
+
+function tab(t) {
+  TABS.forEach(x => document.getElementById('t-'+x).classList.remove('on'))
+  document.getElementById('t-'+t).classList.add('on')
+  show('s-'+t)
+}
+</script>
+</body>
+</html>
