@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useLocations } from "../hooks/useLocations"
 import { PRODUCER_TYPES } from "../constants/producerTypes"
 import { API_BASE } from "../constants/api"
+import { getFarmLocation } from "../utils/location"
 
 type Props = {
     token: string
@@ -45,7 +46,7 @@ export function OnboardingScreen({ token, onComplete }: Props) {
         }
 
         try {
-            const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+            const pos = await getFarmLocation()
             const result = await addLocation({
                 name: defaultName,
                 latitude: pos.coords.latitude,

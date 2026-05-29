@@ -7,6 +7,7 @@ import * as Location from "expo-location"
 import { API_BASE } from "../constants/api"
 import { PRODUCER_TYPES } from "../constants/producerTypes"
 import { useLocations } from "../hooks/useLocations"
+import { getFarmLocation } from "../utils/location"
 
 type LocCardState = "idle" | "loading" | "done" | "error"
 
@@ -83,7 +84,7 @@ export function ProfileSheet({ visible, token, onClose }: Props) {
             return
         }
         try {
-            const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+            const pos = await getFarmLocation()
             const result = await addLocation({
                 name: defaultName,
                 latitude: pos.coords.latitude,

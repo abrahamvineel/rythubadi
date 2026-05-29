@@ -51,25 +51,40 @@ class PostgresProducerRepository:
             self.pool.putconn(conn)
 
     def add_types(self, producer_id: UUID, new_types: frozenset[ProducerType]) -> ProducerProfile:
+        """
+        Upserts producer types.
+
+        If no profile row exists yet (e.g. account created before profile
+        table was introduced), creates one by pulling the name from users.
+        If a profile row already exists, merges the new types with the
+        existing ones using DISTINCT — no duplicates, no removals.
+        """
         conn = self.pool.getconn()
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 new_type_names = [t.name for t in new_types]
                 cur.execute(
                     """
-                    UPDATE producer_profile
-                    SET producer_types = (
-                        SELECT array_agg(DISTINCT elem)
-                        FROM unnest(producer_types || %s::text[]) AS elem
-                    ),
-                    updated_at = NOW()
-                    WHERE producer_id = %s
+                    INSERT INTO producer_profile (producer_id, name, producer_types)
+                    SELECT id, name, %s::text[]
+                    FROM users
+                    WHERE id = %s
+                    ON CONFLICT (producer_id) DO UPDATE
+                        SET producer_types = (
+                            SELECT array_agg(DISTINCT elem)
+                            FROM unnest(
+                                producer_profile.producer_types || EXCLUDED.producer_types
+                            ) AS elem
+                        ),
+                        updated_at = NOW()
                     RETURNING *
                     """,
                     (new_type_names, str(producer_id)),
                 )
                 row = cur.fetchone()
             conn.commit()
+            if row is None:
+                raise ValueError(f"User {producer_id} not found — cannot create profile")
             return ProducerProfile(
                 producer_id=UUID(row["producer_id"]),
                 producer_types=frozenset(ProducerType[t] for t in row["producer_types"]),

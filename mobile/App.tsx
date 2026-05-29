@@ -17,6 +17,7 @@ import {
     Platform,
     TouchableOpacity,
     Image,
+    useWindowDimensions,
 } from "react-native"
 import { useChats } from "./src/hooks/useChats"
 import { Message } from "./src/hooks/useChat"
@@ -29,12 +30,16 @@ import Markdown from "react-native-markdown-display"
 
 function AppContent() {
     const insets = useSafeAreaInsets()
+    const { width } = useWindowDimensions()
+    const isMobile = width < 600
+
     const { token, name, language, provinceState, country, loading: authLoading, error: authError, login, register, logout } = useAuth()
     const [authScreen, setAuthScreen] = useState<"login" | "register">("login")
     const { chats, activeChatId, createChat, setActiveChatId, sendMessageToActiveChat, isLoading, deleteChat } = useChats({ token, language, provinceState, country })
     // onboardingDone: null = still checking, false = must show, true = done
     const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
-    const [sidebarOpen, setSidebarOpen] = useState(true)
+    // Sidebar closed by default — full-width chat on first load
+    const [sidebarOpen, setSidebarOpen] = useState(false)
     const [profileOpen, setProfileOpen] = useState(false)
     const [text, setText] = useState("")
     const scrollRef = useRef<ScrollView>(null)
@@ -113,21 +118,24 @@ function AppContent() {
                 </View>
             </View>
 
-            {/* Body: sidebar + chat */}
+            {/* Body: sidebar (desktop) + chat */}
             <View style={{ flex: 1, flexDirection: "row" }}>
-                {sidebarOpen && (
-                    <Sidebar
-                        chats={chats}
-                        activeChatId={activeChatId}
-                        onSelectChat={setActiveChatId}
-                        onNewChat={createChat}
-                        onDeleteChat={deleteChat}
-                        name={name}
-                        language={language}
-                        provinceState={provinceState}
-                        onLogout={logout}
-                        onOpenProfile={() => setProfileOpen(true)}
-                    />
+                {/* Desktop / tablet — sidebar sits beside the chat */}
+                {!isMobile && sidebarOpen && (
+                    <View style={styles.desktopSidebar}>
+                        <Sidebar
+                            chats={chats}
+                            activeChatId={activeChatId}
+                            onSelectChat={setActiveChatId}
+                            onNewChat={createChat}
+                            onDeleteChat={deleteChat}
+                            name={name}
+                            language={language}
+                            country={country}
+                            onLogout={logout}
+                            onOpenProfile={() => setProfileOpen(true)}
+                        />
+                    </View>
                 )}
 
                 {/* Chat area + input bar */}
@@ -215,6 +223,29 @@ function AppContent() {
             </View>
         </KeyboardAvoidingView>
 
+        {/* Mobile drawer — overlays everything, rendered outside KAV */}
+        {isMobile && sidebarOpen && (
+            <View style={styles.drawerOverlay} pointerEvents="box-none">
+                {/* Backdrop — tap anywhere outside the panel to close */}
+                <Pressable style={styles.drawerBackdrop} onPress={() => setSidebarOpen(false)} />
+                {/* Panel */}
+                <View style={styles.drawerPanel}>
+                    <Sidebar
+                        chats={chats}
+                        activeChatId={activeChatId}
+                        onSelectChat={(id) => { setActiveChatId(id); setSidebarOpen(false) }}
+                        onNewChat={() => { createChat(); setSidebarOpen(false) }}
+                        onDeleteChat={deleteChat}
+                        name={name}
+                        language={language}
+                        country={country}
+                        onLogout={logout}
+                        onOpenProfile={() => { setProfileOpen(true); setSidebarOpen(false) }}
+                    />
+                </View>
+            </View>
+        )}
+
         <ProfileSheet
             visible={profileOpen}
             token={token}
@@ -253,6 +284,29 @@ const styles = StyleSheet.create({
     root: {
         flex: 1,
         backgroundColor: "#F4F9F4",
+    },
+
+    // Desktop sidebar wrapper — fixed width, sits beside chat
+    desktopSidebar: {
+        width: 260,
+    },
+
+    // Mobile drawer — full-screen overlay
+    drawerOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        zIndex: 50,
+        flexDirection: "row",
+    },
+    drawerBackdrop: {
+        flex: 1,
+        backgroundColor: "rgba(0,0,0,0.45)",
+    },
+    drawerPanel: {
+        width: 280,
+        position: "absolute",
+        left: 0,
+        top: 0,
+        bottom: 0,
     },
 
     // Header
