@@ -15,7 +15,8 @@ from infrastructure.open_meteo_weather_adapter import OpenMeteoWeatherAdapter
 from infrastructure.claude_image_analyzer import ClaudeImageAnalyzer
 from infrastructure.stubs.stub_disease_corpus import StubDiseaseCorpus
 from infrastructure.stubs.in_memory_confirmation_repository import InMemoryConfirmationRepository
-from infrastructure.stubs.stub_producer_repository import StubProducerRepository
+from infrastructure.postgres_producer_repository import PostgresProducerRepository
+from infrastructure.postgres_location_repository import PostgresLocationRepository
 from application.agents.crop_advisor_graph import CropAdvisorGraph
 from application.agents.crop_diagnosis_graph import CropDiagnosisGraph
 from application.agents.scheme_advisor_graph import SchemeAdvisorGraph
@@ -33,6 +34,8 @@ class Services:
         orchestrator_graph: CompiledStateGraph
         postgres_user_repo: PostgresUserRepository
         postgres_conversation_repo: PostgresConversationRepository
+        postgres_producer_repo: PostgresProducerRepository
+        postgres_location_repo: PostgresLocationRepository
         weather_provider: OpenMeteoWeatherAdapter
         soil_moisture_provider: StubSoilMoistureProvider
 
@@ -54,7 +57,10 @@ def build_services():
         
         crop_diagnosis_graph = CropDiagnosisGraph(llm_client=llm_client, weather_provider=OpenMeteoWeatherAdapter(), image_analyzer=ClaudeImageAnalyzer(api_key=llm_api_key), disease_corpus=StubDiseaseCorpus(), confirmation_repo=InMemoryConfirmationRepository())
 
-        scheme_advisor_graph = SchemeAdvisorGraph(llm_client=llm_client, producer_repo=StubProducerRepository(), scheme_repo=pgvector_scheme_repo)
+        postgres_producer_repo = PostgresProducerRepository(pool)
+        postgres_location_repo = PostgresLocationRepository(pool)
+
+        scheme_advisor_graph = SchemeAdvisorGraph(llm_client=llm_client, producer_repo=postgres_producer_repo, scheme_repo=pgvector_scheme_repo)
 
         orchestrator_graph = OrchestratorGraph(
                 llm_client=llm_client,
@@ -70,12 +76,14 @@ def build_services():
         weather_provider = OpenMeteoWeatherAdapter()
         soil_moisture_provider = StubSoilMoistureProvider()
 
-        return Services(market_listing=market_listing, 
+        return Services(market_listing=market_listing,
                         llm_client=llm_client,
-                        crop_diagnosis_graph=crop_diagnosis_graph.build(), 
+                        crop_diagnosis_graph=crop_diagnosis_graph.build(),
                         scheme_advisor_graph=scheme_advisor_graph.build(),
                         orchestrator_graph=orchestrator_graph.build(),
                         postgres_user_repo=postgres_user_repo,
                         postgres_conversation_repo=postgres_conversation_repo,
+                        postgres_producer_repo=postgres_producer_repo,
+                        postgres_location_repo=postgres_location_repo,
                         weather_provider=weather_provider,
                         soil_moisture_provider=soil_moisture_provider)

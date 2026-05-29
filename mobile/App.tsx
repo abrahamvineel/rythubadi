@@ -1,7 +1,11 @@
 import React, { useState, useRef, useEffect } from "react"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context"
 import { useAuth } from "./src/hooks/useAuth"
+import { decodeToken } from "./src/utils/token"
 import { LoginScreen } from "./src/screens/LoginScreen"
 import { RegisterScreen } from "./src/screens/RegisterScreen"
+import { OnboardingScreen } from "./src/screens/OnboardingScreen"
 import {
     StyleSheet,
     Text,
@@ -19,14 +23,19 @@ import { Message } from "./src/hooks/useChat"
 import { useVoice } from "./src/hooks/useVoice"
 import { VoiceButton } from "./src/components/VoiceButton"
 import { Sidebar } from "./src/components/SideBar"
+import { ProfileSheet } from "./src/components/ProfileSheet"
 import { useImagePicker } from "./src/hooks/useImagePicker"
 import Markdown from "react-native-markdown-display"
 
-export default function App() {
+function AppContent() {
+    const insets = useSafeAreaInsets()
     const { token, name, language, provinceState, country, loading: authLoading, error: authError, login, register, logout } = useAuth()
     const [authScreen, setAuthScreen] = useState<"login" | "register">("login")
-    const { chats, activeChatId, createChat, setActiveChatId, sendMessageToActiveChat, isLoading, deleteChat } = useChats({ language, provinceState, country })
+    const { chats, activeChatId, createChat, setActiveChatId, sendMessageToActiveChat, isLoading, deleteChat } = useChats({ token, language, provinceState, country })
+    // onboardingDone: null = still checking, false = must show, true = done
+    const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null)
     const [sidebarOpen, setSidebarOpen] = useState(true)
+    const [profileOpen, setProfileOpen] = useState(false)
     const [text, setText] = useState("")
     const scrollRef = useRef<ScrollView>(null)
     const activeChat = chats.find(c => c.id === activeChatId) ?? null
@@ -38,12 +47,43 @@ export default function App() {
         scrollRef.current?.scrollToEnd({ animated: true })
     }, [messages, isLoading])
 
+    // Check whether this user has completed onboarding
+    useEffect(() => {
+        if (!token) {
+            setOnboardingDone(null)   // reset so next login checks again
+            return
+        }
+        const decoded = decodeToken(token)
+        const userId = decoded?.user_id
+        if (!userId) {
+            setOnboardingDone(true)   // can't identify user — skip onboarding
+            return
+        }
+        AsyncStorage.getItem(`onboarding_done_${userId}`)
+            .then(val => setOnboardingDone(val === "true"))
+            .catch(() => setOnboardingDone(true))   // storage error — don't block user
+    }, [token])
+
+    async function handleOnboardingComplete() {
+        const decoded = decodeToken(token!)
+        const userId = decoded?.user_id
+        if (userId) {
+            await AsyncStorage.setItem(`onboarding_done_${userId}`, "true")
+        }
+        setOnboardingDone(true)
+    }
+
     if (authLoading) return null
+    if (token && onboardingDone === null) return null   // still reading AsyncStorage
 
     if (!token) {
         if (authScreen === "register")
             return <RegisterScreen onRegister={register} onGoToLogin={() => setAuthScreen("login")} error={authError} />
         return <LoginScreen onLogin={login} onGoToRegister={() => setAuthScreen("register")} error={authError} />
+    }
+
+    if (!onboardingDone) {
+        return <OnboardingScreen token={token} onComplete={handleOnboardingComplete} />
     }
 
     async function handleSend() {
@@ -56,20 +96,21 @@ export default function App() {
     }
 
     return (
+        <>
         <KeyboardAvoidingView
             style={styles.root}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-            {/* Header */}
-            <View style={styles.header}>
-                    <TouchableOpacity onPress={() => setSidebarOpen(o => !o)} style={{ marginRight: 12 }}>
-                        <Text style={{ color: "#fff", fontSize: 20 }}>☰</Text>
-                    </TouchableOpacity>
-                    <Text style={styles.headerEmoji}>🌾</Text>
-                    <View style={{ flex: 1 }}>
-                        <Text style={styles.headerTitle}>Rythu Voice</Text>
-                        <Text style={styles.headerSubtitle}>Your AI farming advisor</Text>
-                    </View>
+            {/* Header — top padding driven by safe area inset so content clears the status bar on all devices */}
+            <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+                <TouchableOpacity onPress={() => setSidebarOpen(o => !o)} style={{ marginRight: 12 }}>
+                    <Text style={{ color: "#fff", fontSize: 20 }}>☰</Text>
+                </TouchableOpacity>
+                <Text style={styles.headerEmoji}>🌾</Text>
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.headerTitle}>Rythu Voice</Text>
+                    <Text style={styles.headerSubtitle}>Your AI farming advisor</Text>
+                </View>
             </View>
 
             {/* Body: sidebar + chat */}
@@ -85,96 +126,109 @@ export default function App() {
                         language={language}
                         provinceState={provinceState}
                         onLogout={logout}
+                        onOpenProfile={() => setProfileOpen(true)}
                     />
                 )}
 
                 {/* Chat area + input bar */}
                 <View style={{ flex: 1 }}>
-            <ScrollView
-                ref={scrollRef}
-                style={styles.chatArea}
-                contentContainerStyle={styles.chatContent}
-            >
-                {messages.length === 0 && (
-                    <View style={styles.emptyState}>
-                        <Text style={styles.emptyEmoji}>🌱</Text>
-                        <Text style={styles.emptyTitle}>Ask your advisor</Text>
-                        <Text style={styles.emptySubtitle}>
-                            Type a question or press the mic to speak.{"\n"}
-                            Ask about crops, diseases, or government schemes.
-                        </Text>
-                    </View>
-                )}
-
-                {messages.map((msg: Message, index: number) => (
-                    <View
-                        key={index}
-                        style={msg.role === "user" ? styles.userRow : styles.assistantRow}
+                    <ScrollView
+                        ref={scrollRef}
+                        style={styles.chatArea}
+                        contentContainerStyle={styles.chatContent}
                     >
-                        {msg.role === "assistant" && (
-                            <Text style={styles.avatar}>🌾</Text>
+                        {messages.length === 0 && (
+                            <View style={styles.emptyState}>
+                                <Text style={styles.emptyEmoji}>🌱</Text>
+                                <Text style={styles.emptyTitle}>Ask your advisor</Text>
+                                <Text style={styles.emptySubtitle}>
+                                    Type a question or press the mic to speak.{"\n"}
+                                    Ask about crops, diseases, or government schemes.
+                                </Text>
+                            </View>
                         )}
-                        <View style={msg.role === "user" ? styles.userBubble : styles.assistantBubble}>
-                            {msg.role === "user" ? (
-                                <Text style={styles.userText}>{msg.text}</Text>
-                            ) : (
-                                <Markdown style={markdownStyles}>{msg.text}</Markdown>
-                            )}
-                        </View>
-                    </View>
-                ))}
 
-                {isLoading && (
-                    <View style={styles.assistantRow}>
-                        <Text style={styles.avatar}>🌾</Text>
-                        <View style={styles.assistantBubble}>
-                            <Text style={styles.typingText}>Thinking...</Text>
-                        </View>
-                    </View>
-                )}
-            </ScrollView>
+                        {messages.map((msg: Message, index: number) => (
+                            <View
+                                key={index}
+                                style={msg.role === "user" ? styles.userRow : styles.assistantRow}
+                            >
+                                {msg.role === "assistant" && (
+                                    <Text style={styles.avatar}>🌾</Text>
+                                )}
+                                <View style={msg.role === "user" ? styles.userBubble : styles.assistantBubble}>
+                                    {msg.role === "user" ? (
+                                        <Text style={styles.userText}>{msg.text}</Text>
+                                    ) : (
+                                        <Markdown style={markdownStyles}>{msg.text}</Markdown>
+                                    )}
+                                </View>
+                            </View>
+                        ))}
 
-            {imageUri && (
-                <View style={{ paddingHorizontal: 12, paddingTop: 8 }}>
-                    <Image source={{ uri: imageUri }} style={{ width: 60, height: 60, borderRadius: 8 }} />
-                    <TouchableOpacity onPress={clearImage} style={{ position: "absolute", top: 4, right: 4 }}>
-                        <Text style={{ color: "#fff", backgroundColor: "#F44336", borderRadius: 10, paddingHorizontal: 5 }}>✕</Text>
-                    </TouchableOpacity>
+                        {isLoading && (
+                            <View style={styles.assistantRow}>
+                                <Text style={styles.avatar}>🌾</Text>
+                                <View style={styles.assistantBubble}>
+                                    <Text style={styles.typingText}>Thinking...</Text>
+                                </View>
+                            </View>
+                        )}
+                    </ScrollView>
+
+                    {imageUri && (
+                        <View style={{ paddingHorizontal: 12, paddingTop: 8 }}>
+                            <Image source={{ uri: imageUri }} style={{ width: 60, height: 60, borderRadius: 8 }} />
+                            <TouchableOpacity onPress={clearImage} style={{ position: "absolute", top: 4, right: 4 }}>
+                                <Text style={{ color: "#fff", backgroundColor: "#F44336", borderRadius: 10, paddingHorizontal: 5 }}>✕</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+
+                    {/* Input bar — bottom padding driven by safe area inset so it clears the home indicator */}
+                    <View style={[styles.inputBar, { paddingBottom: insets.bottom + 10 }]}>
+                        <TouchableOpacity onPress={pickImage} style={{ padding: 8 }}>
+                            <Text style={{ fontSize: 22 }}>📷</Text>
+                        </TouchableOpacity>
+                        <TextInput
+                            style={styles.input}
+                            value={text}
+                            onChangeText={setText}
+                            placeholder="Ask about your crops..."
+                            placeholderTextColor="#8FAF8F"
+                            multiline
+                            onSubmitEditing={handleSend}
+                        />
+                        <Pressable
+                            style={({ pressed }) => [styles.sendButton, pressed && styles.sendButtonPressed]}
+                            onPress={handleSend}
+                        >
+                            <Text style={styles.sendLabel}>Send</Text>
+                        </Pressable>
+                        <VoiceButton
+                            isRecording={isRecording}
+                            onStart={startRecording}
+                            onStop={stopRecording}
+                        />
+                    </View>
                 </View>
-            )}
-
-
-            {/* Input bar */}
-            <View style={styles.inputBar}>
-                
-                <TouchableOpacity onPress={pickImage} style={{ padding: 8 }}>
-                    <Text style={{ fontSize: 22 }}>📷</Text>
-                </TouchableOpacity>
-
-                <TextInput
-                    style={styles.input}
-                    value={text}
-                    onChangeText={setText}
-                    placeholder="Ask about your crops..."
-                    placeholderTextColor="#8FAF8F"
-                    multiline
-                    onSubmitEditing={handleSend}
-                />
-                <Pressable
-                    style={({ pressed }) => [styles.sendButton, pressed && styles.sendButtonPressed]}
-                    onPress={handleSend}
-                >
-                    <Text style={styles.sendLabel}>Send</Text>
-                </Pressable>
-                <VoiceButton
-                    isRecording={isRecording}
-                    onStart={startRecording}
-                    onStop={stopRecording}
-                />
-            </View>
-            </View>
             </View>
         </KeyboardAvoidingView>
+
+        <ProfileSheet
+            visible={profileOpen}
+            token={token}
+            onClose={() => setProfileOpen(false)}
+        />
+        </>
+    )
+}
+
+export default function App() {
+    return (
+        <SafeAreaProvider>
+            <AppContent />
+        </SafeAreaProvider>
     )
 }
 
@@ -204,7 +258,6 @@ const styles = StyleSheet.create({
     // Header
     header: {
         backgroundColor: "#1B5E20",
-        paddingTop: 60,
         paddingBottom: 16,
         paddingHorizontal: 20,
         flexDirection: "row",
@@ -305,11 +358,6 @@ const styles = StyleSheet.create({
         fontSize: 15,
         lineHeight: 21,
     },
-    assistantText: {
-        color: "#1A3A1A",
-        fontSize: 15,
-        lineHeight: 21,
-    },
     typingText: {
         color: "#7A9E7A",
         fontSize: 15,
@@ -322,8 +370,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         backgroundColor: "#FFFFFF",
         paddingHorizontal: 12,
-        paddingVertical: 10,
-        paddingBottom: 28,
+        paddingTop: 10,
         gap: 8,
         borderTopWidth: 1,
         borderTopColor: "#D8EDD8",

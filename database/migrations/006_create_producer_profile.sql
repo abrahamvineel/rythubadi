@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS producer_profile (
+    producer_id   UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    name          TEXT NOT NULL,
+    producer_types TEXT[] NOT NULL,
+    created_at    TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at    TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
+);

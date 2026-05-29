@@ -21,6 +21,10 @@ class ProducerProfile:
         if requesting_producer_id != self.producer_id:
             raise UnauthorisedOperationError("Requesting producer id is not matching")
     
+    def add_producer_types(self, new_types: frozenset[ProducerType], requesting_producer_id: UUID) -> "ProducerProfile":
+        self.check_ownership(requesting_producer_id)
+        return replace(self, producer_types=self.producer_types | new_types)
+
     def add_product(self, product: Product, requesting_producer_id: UUID):
         self.check_ownership(requesting_producer_id)
         if product in self.products:

@@ -1,6 +1,7 @@
-import { useState } from "react";
-import * as ImagePicker from "expo-image-picker";
-import * as ImageManipulator from "expo-image-manipulator";
+import { useState } from "react"
+import * as ImagePicker from "expo-image-picker"
+import * as ImageManipulator from "expo-image-manipulator"
+import { API_BASE } from "../constants/api"
 
 export function useImagePicker() {
     const [imageUri, setImageUri] = useState<string | null>(null)
@@ -36,7 +37,7 @@ export function useImagePicker() {
             formData.append("file", { uri: imageUri, name: "photo.jpg", type: "image/jpeg" } as any)
         }
 
-        const res = await fetch("http://localhost:8000/upload", {
+        const res = await fetch(`${API_BASE}/upload`, {
             method: "POST",
             body: formData,
         })

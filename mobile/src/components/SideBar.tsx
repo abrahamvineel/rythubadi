@@ -12,9 +12,10 @@ type Props = {
     language: string
     provinceState: string
     onLogout: () => void
+    onOpenProfile: () => void
 }
 
-export function Sidebar({ chats, activeChatId, onSelectChat, onNewChat, onDeleteChat, name, language, provinceState, onLogout }: Props) {
+export function Sidebar({ chats, activeChatId, onSelectChat, onNewChat, onDeleteChat, name, language, provinceState, onLogout, onOpenProfile }: Props) {
     const initials = name ? name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2) : "?"
 
     return (
@@ -44,19 +45,20 @@ export function Sidebar({ chats, activeChatId, onSelectChat, onNewChat, onDelete
                 ))}
             </ScrollView>
 
-            {/* Profile section */}
-            <View style={styles.profileSection}>
+            {/* Profile section — tap to manage producer types */}
+            <TouchableOpacity style={styles.profileSection} onPress={onOpenProfile} activeOpacity={0.75}>
                 <View style={styles.avatar}>
                     <Text style={styles.avatarText}>{initials}</Text>
                 </View>
                 <View style={{ flex: 1 }}>
                     <Text style={styles.profileName} numberOfLines={1}>{name ?? "User"}</Text>
                     <Text style={styles.profileSub}>{language} · {provinceState}</Text>
+                    <Text style={styles.profileManage}>Manage profile →</Text>
                 </View>
-                <TouchableOpacity onPress={onLogout} style={styles.logoutBtn}>
+                <TouchableOpacity onPress={onLogout} style={styles.logoutBtn} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
                     <Text style={styles.logoutText}>⏻</Text>
                 </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
         </View>
     )
 }
@@ -78,6 +80,7 @@ const styles = StyleSheet.create({
     avatarText: { color: "#fff", fontWeight: "700", fontSize: 14 },
     profileName: { color: "#FFFFFF", fontSize: 13, fontWeight: "600" },
     profileSub: { color: "#81C784", fontSize: 11 },
+    profileManage: { color: "#A5D6A7", fontSize: 10, marginTop: 2 },
     logoutBtn: { padding: 6 },
     logoutText: { color: "#81C784", fontSize: 18 },
 })

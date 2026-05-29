@@ -27,7 +27,25 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Rythu needs access to your photo library to attach crop images."
+        }
+      ],
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Rythu needs access to your microphone for voice questions."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Rythu needs your location to pin your farm and get accurate local weather."
+        }
+      ]
     ]
   }
 }

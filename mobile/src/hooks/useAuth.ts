@@ -1,15 +1,9 @@
 import { useState, useEffect } from "react"
+import { decodeToken } from "../utils/token"
+import { getSecureItem, setSecureItem, deleteSecureItem } from "../utils/storage"
+import { API_BASE } from "../constants/api"
 
-const API_BASE = "http://localhost:8000"
-
-function decodeToken(token: string): { user_id: string; name: string; language: string; province_state: string; country: string } | null {
-    try {
-        const payload = token.split(".")[1]
-        return JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")))
-    } catch {
-        return null
-    }
-}
+const TOKEN_KEY = "access_token"
 
 export function useAuth() {
     const [token, setToken] = useState<string | null>(null)
@@ -21,31 +15,34 @@ export function useAuth() {
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
-        const stored = localStorage.getItem("access_token")
-        if (stored) {
-            const decoded = decodeToken(stored)
-            setToken(stored)
-            setName(decoded?.name ?? null)
-            setLanguage(decoded?.language ?? "EN")
-            setProvinceState(decoded?.province_state ?? "general")
-            setCountry(decoded?.country ?? "CA")
+        async function loadToken() {
+            const stored = await getSecureItem(TOKEN_KEY)
+            if (stored) {
+                const decoded = decodeToken(stored)
+                setToken(stored)
+                setName(decoded?.name ?? null)
+                setLanguage(decoded?.language ?? "EN")
+                setProvinceState(decoded?.province_state ?? "general")
+                setCountry(decoded?.country ?? "CA")
+            }
+            setLoading(false)
         }
-        setLoading(false)
+        loadToken()
     }, [])
 
-    async function register(email: string, name: string, password: string, language: string = "EN", provinceState: string = "general"): Promise<boolean> {
+    async function register(email: string, name: string, password: string, language: string = "EN", country: string = "CA", producerTypes: string[] = []): Promise<boolean> {
         setError(null)
         try {
             const res = await fetch(`${API_BASE}/auth/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, name, password, language, province_state: provinceState, country: "CA" }),
+                body: JSON.stringify({ email, name, password, language, province_state: "general", country, producer_types: producerTypes }),
             })
             if (res.status === 409) { setError("Account already exists"); return false }
             if (!res.ok) { setError("Registration failed"); return false }
             const data = await res.json()
             const decoded = decodeToken(data.access_token)
-            localStorage.setItem("access_token", data.access_token)
+            await setSecureItem(TOKEN_KEY, data.access_token)
             setToken(data.access_token)
             setName(decoded?.name ?? null)
             setLanguage(decoded?.language ?? "EN")
@@ -70,7 +67,7 @@ export function useAuth() {
             if (!res.ok) { setError("Login failed"); return false }
             const data = await res.json()
             const decoded = decodeToken(data.access_token)
-            localStorage.setItem("access_token", data.access_token)
+            await setSecureItem(TOKEN_KEY, data.access_token)
             setToken(data.access_token)
             setName(decoded?.name ?? null)
             setLanguage(decoded?.language ?? "EN")
@@ -83,8 +80,8 @@ export function useAuth() {
         }
     }
 
-    function logout() {
-        localStorage.removeItem("access_token")
+    async function logout() {
+        await deleteSecureItem(TOKEN_KEY)
         setToken(null)
         setName(null)
         setLanguage("EN")

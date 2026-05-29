@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
-import { Message } from './useChat';
-
-const API_BASE = "http://localhost:8000"
+import { useState, useEffect } from "react"
+import AsyncStorage from "@react-native-async-storage/async-storage"
+import { Message } from "./useChat"
+import { decodeToken } from "../utils/token"
+import { API_BASE } from "../constants/api"
 
 export type Chat = {
     id: string
@@ -9,50 +10,59 @@ export type Chat = {
     messages: Message[]
 }
 
-function getProducerId(): string {
-    const token = localStorage.getItem("access_token")
-    if (!token) return ""
-    try {
-        const payload = token.split(".")[1]
-        const decoded = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")))
-        return decoded.user_id ?? ""
-    } catch { return "" }
-}
-
-function authHeaders(): HeadersInit {
-    const token = localStorage.getItem("access_token")
-    return {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-    }
-}
-
-async function fetchMessages(chatId: string): Promise<Message[]> {
-    try {
-        const res = await fetch(`${API_BASE}/conversations/${chatId}/messages`, { headers: authHeaders() })
-        if (!res.ok) return []
-        const data = await res.json()
-        return data.map((m: { content: string; system_generated: boolean }) => ({
-            role: m.system_generated ? "assistant" : "user",
-            text: m.content,
-        }))
-    } catch { return [] }
-}
-
-export function useChats({ language = "EN", provinceState = "general", country = "CA" }: { language?: string; provinceState?: string; country?: string } = {}) {
+export function useChats({
+    token,
+    language = "EN",
+    provinceState = "general",
+    country = "CA",
+}: {
+    token: string | null
+    language?: string
+    provinceState?: string
+    country?: string
+}) {
     const [chats, setChats] = useState<Chat[]>([])
     const [activeChatId, setActiveChatId] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(false)
 
+    function authHeaders(): HeadersInit {
+        return {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+        }
+    }
+
+    function getProducerId(): string {
+        if (!token) return ""
+        return decodeToken(token)?.user_id ?? ""
+    }
+
+    async function fetchMessages(chatId: string): Promise<Message[]> {
+        try {
+            const res = await fetch(`${API_BASE}/conversations/${chatId}/messages`, { headers: authHeaders() })
+            if (!res.ok) return []
+            const data = await res.json()
+            return data.map((m: { content: string; system_generated: boolean }) => ({
+                role: m.system_generated ? "assistant" : "user",
+                text: m.content,
+            }))
+        } catch { return [] }
+    }
+
     useEffect(() => {
+        if (!token) return
         async function loadChats() {
             try {
                 const res = await fetch(`${API_BASE}/conversations`, { headers: authHeaders() })
                 if (!res.ok) return
                 const data = await res.json()
-                const loaded: Chat[] = data.map((c: { id: string; title: string }) => ({ id: c.id, title: c.title, messages: [] }))
+                const loaded: Chat[] = data.map((c: { id: string; title: string }) => ({
+                    id: c.id,
+                    title: c.title,
+                    messages: [],
+                }))
                 setChats(loaded)
-                const lastActive = localStorage.getItem("active_chat_id")
+                const lastActive = await AsyncStorage.getItem("active_chat_id")
                 if (lastActive && loaded.find(c => c.id === lastActive)) {
                     const messages = await fetchMessages(lastActive)
                     setChats(prev => prev.map(c => c.id === lastActive ? { ...c, messages } : c))
@@ -61,14 +71,14 @@ export function useChats({ language = "EN", provinceState = "general", country =
             } catch { }
         }
         loadChats()
-    }, [])
+    }, [token])
 
     async function createChat(): Promise<string> {
         try {
             const res = await fetch(`${API_BASE}/conversations`, {
                 method: "POST",
                 headers: authHeaders(),
-                body: JSON.stringify({ title: "New conversation" })
+                body: JSON.stringify({ title: "New conversation" }),
             })
             if (!res.ok) return ""
             const data = await res.json()
@@ -80,10 +90,8 @@ export function useChats({ language = "EN", provinceState = "general", country =
     }
 
     function addMessage(chatId: string, message: Message) {
-        setChats(prev => prev.map(
-            chat => chat.id === chatId
-                ? { ...chat, messages: [...chat.messages, message] }
-                : chat
+        setChats(prev => prev.map(chat =>
+            chat.id === chatId ? { ...chat, messages: [...chat.messages, message] } : chat
         ))
     }
 
@@ -103,27 +111,15 @@ export function useChats({ language = "EN", provinceState = "general", country =
         try {
             await fetch(`${API_BASE}/conversations/${chatId}`, {
                 method: "DELETE",
-                headers: authHeaders()
+                headers: authHeaders(),
             })
         } catch { }
         setChats(prev => prev.filter(c => c.id !== chatId))
         if (activeChatId === chatId) {
             setActiveChatId(null)
-            localStorage.removeItem("active_chat_id")
+            await AsyncStorage.removeItem("active_chat_id")
         }
     }
-
-    // GPS disabled until field-location onboarding is implemented
-    // async function getGps(): Promise<{ lat: number; lon: number } | null> {
-    //     return new Promise(resolve => {
-    //         if (!navigator.geolocation) { resolve(null); return }
-    //         navigator.geolocation.getCurrentPosition(
-    //             pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
-    //             () => resolve(null),
-    //             { timeout: 5000 }
-    //         )
-    //     })
-    // }
 
     async function sendMessageToActiveChat(text: string, imageUrl?: string): Promise<string> {
         if (!activeChatId) return ""
@@ -135,14 +131,12 @@ export function useChats({ language = "EN", provinceState = "general", country =
         await fetch(`${API_BASE}/conversations/${activeChatId}/messages`, {
             method: "POST",
             headers: authHeaders(),
-            body: JSON.stringify({ content: text, attachment_url: imageUrl ?? null, system_generated: false })
+            body: JSON.stringify({ content: text, attachment_url: imageUrl ?? null, system_generated: false }),
         })
 
         const chatId = activeChatId
         addMessage(chatId, { role: "assistant", text: "", timestamp: new Date().toISOString() })
 
-        // GPS disabled until field-location onboarding is implemented
-        // const gps = await getGps()
         const res = await fetch(`${API_BASE}/chat/stream`, {
             method: "POST",
             headers: authHeaders(),
@@ -181,7 +175,7 @@ export function useChats({ language = "EN", provinceState = "general", country =
         await fetch(`${API_BASE}/conversations/${chatId}/messages`, {
             method: "POST",
             headers: authHeaders(),
-            body: JSON.stringify({ content: fullText, system_generated: true })
+            body: JSON.stringify({ content: fullText, system_generated: true }),
         })
 
         setIsLoading(false)
@@ -189,7 +183,7 @@ export function useChats({ language = "EN", provinceState = "general", country =
     }
 
     async function selectChat(chatId: string) {
-        localStorage.setItem("active_chat_id", chatId)
+        await AsyncStorage.setItem("active_chat_id", chatId)
         setActiveChatId(chatId)
         const alreadyLoaded = chats.find(c => c.id === chatId)?.messages.length ?? 0
         if (alreadyLoaded === 0) {

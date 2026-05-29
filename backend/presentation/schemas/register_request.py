@@ -9,9 +9,12 @@ class RegisterRequest(BaseModel):
     language: str = "EN"
     province_state: str = "general"
     country: str = "CA"
+    producer_types: list[str] = []
 
     @model_validator(mode="after")
-    def check_contact_method(self):
+    def validate_fields(self):
         if self.email is None and self.phone_number is None:
             raise ValueError("At least one of email or phone_number is required")
+        if not self.producer_types:
+            raise ValueError("At least one producer type is required")
         return self

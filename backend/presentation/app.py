@@ -9,6 +9,8 @@ from presentation.routes.voice import router as voice_router
 from presentation.routes.upload import router as upload_router
 from presentation.routes.auth import router as auth_router
 from presentation.routes.conversations import router as conversations_router
+from presentation.routes.profile import router as profile_router
+from presentation.routes.location import router as location_router
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import uuid
@@ -44,6 +46,8 @@ app.include_router(voice_router)
 app.include_router(upload_router)
 app.include_router(auth_router)
 app.include_router(conversations_router)
+app.include_router(profile_router)
+app.include_router(location_router)
 uploads_dir = Path("uploads")
 uploads_dir.mkdir(exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
