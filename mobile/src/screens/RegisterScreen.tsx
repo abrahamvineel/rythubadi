@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import {
     View, Text, TextInput, Pressable, StyleSheet,
-    ActivityIndicator, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform,
+    ActivityIndicator, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, Alert,
 } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { PRODUCER_TYPES } from "../constants/producerTypes"
@@ -45,8 +45,22 @@ export function RegisterScreen({ onRegister, onGoToLogin, error }: Props) {
 
     const canSubmit = name.trim() && email.trim() && password.length >= 6 && producerTypes.length > 0
 
+    function missingFields(): string | null {
+        if (!name.trim()) return "Enter your full name"
+        if (!email.trim()) return "Enter your email"
+        if (password.length < 6) return "Password must be at least 6 characters"
+        if (producerTypes.length === 0) return "Select at least one producer type"
+        return null
+    }
+
     async function handleRegister() {
-        if (!canSubmit) return
+        const missing = missingFields()
+        if (missing) {
+            // On web use alert since Alert.alert needs native context
+            if (Platform.OS === "web") { window.alert(missing); return }
+            Alert.alert("Almost there", missing)
+            return
+        }
         setLoading(true)
         await onRegister(email.trim(), name.trim(), password, language, country, producerTypes)
         setLoading(false)
@@ -115,6 +129,16 @@ export function RegisterScreen({ onRegister, onGoToLogin, error }: Props) {
                             <Text style={styles.eyeIcon}>{showPassword ? "🙈" : "👁"}</Text>
                         </TouchableOpacity>
                     </View>
+                    {password.length > 0 && password.length < 6 && (
+                        <View style={styles.passwordHintBanner}>
+                            <Text style={styles.passwordHintText}>
+                                {password.length}/6 characters — {6 - password.length} more needed
+                            </Text>
+                            <View style={styles.passwordStrengthBar}>
+                                <View style={[styles.passwordStrengthFill, { width: `${(password.length / 6) * 100}%` }]} />
+                            </View>
+                        </View>
+                    )}
 
                     <View style={styles.divider} />
 
@@ -172,7 +196,7 @@ export function RegisterScreen({ onRegister, onGoToLogin, error }: Props) {
                     <Pressable
                         style={[styles.primaryButton, !canSubmit && styles.primaryButtonDisabled]}
                         onPress={handleRegister}
-                        disabled={loading || !canSubmit}
+                        disabled={loading}
                     >
                         {loading
                             ? <ActivityIndicator color="#fff" />
@@ -234,6 +258,32 @@ const styles = StyleSheet.create({
     passwordInput: { marginBottom: 0, paddingRight: 48 },
     eyeButton: { position: "absolute", right: 14, top: 12 },
     eyeIcon: { fontSize: 18 },
+
+    passwordHintBanner: {
+        backgroundColor: "#FFF8E1",
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        marginTop: -8,
+        marginBottom: 14,
+        gap: 6,
+    },
+    passwordHintText: {
+        fontSize: 12,
+        color: "#E65100",
+        fontWeight: "600",
+    },
+    passwordStrengthBar: {
+        height: 3,
+        backgroundColor: "#FFE082",
+        borderRadius: 2,
+        overflow: "hidden",
+    },
+    passwordStrengthFill: {
+        height: "100%",
+        backgroundColor: "#E65100",
+        borderRadius: 2,
+    },
 
     typeGrid: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 8 },
     typeCard: {

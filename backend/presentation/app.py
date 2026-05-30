@@ -11,6 +11,7 @@ from presentation.routes.auth import router as auth_router
 from presentation.routes.conversations import router as conversations_router
 from presentation.routes.profile import router as profile_router
 from presentation.routes.location import router as location_router
+from presentation.routes.feed import router as feed_router
 from fastapi.middleware.cors import CORSMiddleware
 import os
 import uuid
@@ -23,7 +24,13 @@ redoc = "/redoc" if DEBUG == "true" else None
 app = FastAPI(docs_url=docs, redoc_url=redoc)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8081"],
+    allow_origins=[
+        "http://localhost:8081",   # Expo CLI default
+        "http://localhost:19006",  # Expo web
+        "http://localhost:3000",   # any future web build
+        "http://192.168.2.14:8081",
+        "http://192.168.2.14:19006",
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -48,6 +55,7 @@ app.include_router(auth_router)
 app.include_router(conversations_router)
 app.include_router(profile_router)
 app.include_router(location_router)
+app.include_router(feed_router)
 uploads_dir = Path("uploads")
 uploads_dir.mkdir(exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")

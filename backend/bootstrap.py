@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from langfuse import Langfuse
 from infrastructure.llm.langfuse_claude_client import LangFuseClaudeClient
 from infrastructure.stubs.stub_soil_moisture_provider import StubSoilMoistureProvider
+from infrastructure.postgres_feed_event_repository import PostgresFeedEventRepository
 from infrastructure.open_meteo_weather_adapter import OpenMeteoWeatherAdapter
 from infrastructure.claude_image_analyzer import ClaudeImageAnalyzer
 from infrastructure.stubs.stub_disease_corpus import StubDiseaseCorpus
@@ -36,6 +37,7 @@ class Services:
         postgres_conversation_repo: PostgresConversationRepository
         postgres_producer_repo: PostgresProducerRepository
         postgres_location_repo: PostgresLocationRepository
+        feed_event_repo: PostgresFeedEventRepository
         weather_provider: OpenMeteoWeatherAdapter
         soil_moisture_provider: StubSoilMoistureProvider
 
@@ -76,6 +78,8 @@ def build_services():
         weather_provider = OpenMeteoWeatherAdapter()
         soil_moisture_provider = StubSoilMoistureProvider()
 
+        feed_event_repo = PostgresFeedEventRepository(pool)
+
         return Services(market_listing=market_listing,
                         llm_client=llm_client,
                         crop_diagnosis_graph=crop_diagnosis_graph.build(),
@@ -85,5 +89,6 @@ def build_services():
                         postgres_conversation_repo=postgres_conversation_repo,
                         postgres_producer_repo=postgres_producer_repo,
                         postgres_location_repo=postgres_location_repo,
+                        feed_event_repo=feed_event_repo,
                         weather_provider=weather_provider,
                         soil_moisture_provider=soil_moisture_provider)

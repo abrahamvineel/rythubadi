@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import {
     Modal, View, Text, TouchableOpacity, StyleSheet,
-    ActivityIndicator, Pressable, ScrollView, Alert,
+    ActivityIndicator, Pressable, ScrollView, Alert, Platform,
 } from "react-native"
 import * as Location from "expo-location"
 import { API_BASE } from "../constants/api"
@@ -256,6 +256,13 @@ export function ProfileSheet({ visible, token, onClose, onLogout }: Props) {
                             <TouchableOpacity
                                 style={styles.logoutButton}
                                 onPress={() => {
+                                    if (Platform.OS === "web") {
+                                        if (window.confirm("Log out?\n\nYou'll need to sign in again to access your farm data.")) {
+                                            onClose()
+                                            onLogout()
+                                        }
+                                        return
+                                    }
                                     Alert.alert(
                                         "Log out?",
                                         "You'll need to sign in again to access your farm data.",

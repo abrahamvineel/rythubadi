@@ -12,7 +12,7 @@
 import React, { useState, useEffect } from "react"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import { SafeAreaProvider } from "react-native-safe-area-context"
-import { View, StyleSheet, useWindowDimensions, Alert } from "react-native"
+import { View, StyleSheet, useWindowDimensions, Alert, Platform } from "react-native"
 
 import { useAuth } from "./src/hooks/useAuth"
 import { decodeToken } from "./src/utils/token"
@@ -84,6 +84,14 @@ function MainApp({
     }
 
     function confirmLogout() {
+        // Alert.alert on web falls back to window.confirm() which browsers often
+        // block in embedded contexts. Use window.confirm directly on web.
+        if (Platform.OS === "web") {
+            if (window.confirm("Log out?\n\nYou'll need to sign in again to access your farm data.")) {
+                logout()
+            }
+            return
+        }
         Alert.alert(
             "Log out?",
             "You'll need to sign in again to access your farm data.",
