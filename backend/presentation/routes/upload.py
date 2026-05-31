@@ -1,5 +1,6 @@
 import os, uuid
-from fastapi import APIRouter, UploadFile, HTTPException
+from fastapi import APIRouter, UploadFile, HTTPException, Depends
+from presentation.dependencies.auth import get_current_user_id
 
 router = APIRouter()
 
@@ -8,7 +9,7 @@ ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"]
 MAX_SIZE = 5 * 1024 * 1024 #5MB
 
 @router.post("/upload")
-async def upload_image(file: UploadFile):
+async def upload_image(file: UploadFile, user_id: str = Depends(get_current_user_id)):
     if file.content_type not in ALLOWED_TYPES:
         raise HTTPException(status_code=415, detail="Unsupported image format")
     

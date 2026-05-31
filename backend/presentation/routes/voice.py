@@ -10,6 +10,7 @@ from application.prompt_injection_guard import sanitise
 from application.prompt_injection_guard import PromptInjectionDetectedError
 from infrastructure.voice.whisper_stt_adapter import WhisperSTTAdapter
 from infrastructure.voice.openai_tts_adapter import OpenAITTSAdapter
+from presentation.dependencies.auth import get_current_user_id
 from openai import OpenAI
 
 router = APIRouter()
@@ -21,7 +22,8 @@ def get_tts_provider() -> ITTSProvider:
     return OpenAITTSAdapter(OpenAI(api_key=os.environ["OPENAI_API_KEY"]))
 
 @router.post("/voice/transcribe")
-async def transcribe(file: UploadFile, stt: ISTTProvider = Depends(get_stt_provider)):
+async def transcribe(file: UploadFile, stt: ISTTProvider = Depends(get_stt_provider),
+                     user_id: str = Depends(get_current_user_id)):
     if file.content_type not in ["audio/wav", "audio/mpeg", "audio/mp4", "audio/webm"]:
         raise HTTPException(status_code=415, detail="Unsupported audio format")
     
@@ -42,6 +44,7 @@ class SpeakRequest(BaseModel):
     language: Language
 
 @router.post("/voice/speak")
-async def speak(request: SpeakRequest, tts: ITTSProvider = Depends(get_tts_provider)):
+async def speak(request: SpeakRequest, tts: ITTSProvider = Depends(get_tts_provider),
+                user_id: str = Depends(get_current_user_id)):
     audio_bytes = tts.synthesise(request.text, request.language)
     return StreamingResponse(io.BytesIO(audio_bytes), media_type="audio/mpeg")

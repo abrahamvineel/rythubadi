@@ -10,6 +10,9 @@ from functools import lru_cache
 from dataclasses import dataclass
 from langfuse import Langfuse
 from infrastructure.llm.langfuse_claude_client import LangFuseClaudeClient
+from infrastructure.nasa_smap_adapter import NASASMAPAdapter
+from infrastructure.open_meteo_soil_adapter import OpenMeteoSoilAdapter
+from infrastructure.soil_moisture_fallback_chain import SoilMoistureFallbackChain
 from infrastructure.stubs.stub_soil_moisture_provider import StubSoilMoistureProvider
 from infrastructure.postgres_feed_event_repository import PostgresFeedEventRepository
 from infrastructure.open_meteo_weather_adapter import OpenMeteoWeatherAdapter
@@ -39,7 +42,7 @@ class Services:
         postgres_location_repo: PostgresLocationRepository
         feed_event_repo: PostgresFeedEventRepository
         weather_provider: OpenMeteoWeatherAdapter
-        soil_moisture_provider: StubSoilMoistureProvider
+        soil_moisture_provider: SoilMoistureFallbackChain
 
 @lru_cache
 def build_services():
@@ -55,7 +58,13 @@ def build_services():
 
         llm_client = LangFuseClaudeClient(llm_client=claude_client, agent_name="crop_advisor")
 
-        crop_advisor_graph = CropAdvisorGraph(llm_client=llm_client, weather_provider=OpenMeteoWeatherAdapter(), soil_moisture_provider=StubSoilMoistureProvider())
+        soil_moisture_provider = SoilMoistureFallbackChain([
+                StubSoilMoistureProvider(),   # IoT (stub until real sensors are wired)
+                NASASMAPAdapter(),            # NASA SMAP satellite
+                OpenMeteoSoilAdapter(),       # Open-Meteo last resort
+        ])
+
+        crop_advisor_graph = CropAdvisorGraph(llm_client=llm_client, weather_provider=OpenMeteoWeatherAdapter(), soil_moisture_provider=soil_moisture_provider)
         
         crop_diagnosis_graph = CropDiagnosisGraph(llm_client=llm_client, weather_provider=OpenMeteoWeatherAdapter(), image_analyzer=ClaudeImageAnalyzer(api_key=llm_api_key), disease_corpus=StubDiseaseCorpus(), confirmation_repo=InMemoryConfirmationRepository())
 
@@ -76,7 +85,6 @@ def build_services():
         postgres_conversation_repo = PostgresConversationRepository(pool)
 
         weather_provider = OpenMeteoWeatherAdapter()
-        soil_moisture_provider = StubSoilMoistureProvider()
 
         feed_event_repo = PostgresFeedEventRepository(pool)
 

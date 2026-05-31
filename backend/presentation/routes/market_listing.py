@@ -8,7 +8,7 @@ from domain.perishability_level import PerishabilityLevel
 from domain.product import Product
 from uuid import UUID
 from domain.listing_mode import ListingMode
-from presentation.dependencies import get_current_user
+from presentation.dependencies.auth import get_current_user_id
 from datetime import datetime
 import base64
 import json
@@ -44,22 +44,22 @@ def get_market_listing_service():
 
 @router.post("/listings", status_code=201)
 def create_listing(request: CreateListingRequest,
-                   claims: dict = Depends(get_current_user),
+                   user_id: str = Depends(get_current_user_id),
                    service = Depends(get_market_listing_service)):
     product = Product(request.category,
                 request.perishability)
-    
+
     service.create_listing(request.listing_mode,
                            request.price,
                            product,
-                           UUID(claims["sub"]),
+                           UUID(user_id),
                            request.photo_url)
     return {"status": "created"}
 
 @router.get("/listings", status_code=200)
-def get_listings(cursor: Optional[str] = Query(default=None), 
+def get_listings(cursor: Optional[str] = Query(default=None),
                  limit: int = Query(default=20, ge=1, le=50),
-                 claims: dict = Depends(get_current_user),
+                 user_id: str = Depends(get_current_user_id),
                  service = Depends(get_market_listing_service)):
     created_at = None
     listing_id = None
@@ -99,7 +99,7 @@ def get_listings(cursor: Optional[str] = Query(default=None),
 
 @router.get("/listings/{listing_id}", status_code=200)
 def get_listing(listing_id: UUID,
-                claims: dict = Depends(get_current_user),
+                user_id: str = Depends(get_current_user_id),
                 service = Depends(get_market_listing_service)):
     try:
         listing = service.get_listing_by_id(listing_id)
